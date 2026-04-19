@@ -16,7 +16,7 @@ export const selectAuthData = createSelector(
 
 export const selectIsLoggedIn = createSelector(
     [selectAuthState],
-    (token) => !!token.accessToken && token.refreshToken && token.userId
+    (token) => !!token.accessToken && !!token.refreshToken && !!token.userId
 );
 
 export const selectAuthLoading = createSelector(

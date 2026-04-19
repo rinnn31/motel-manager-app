@@ -33,6 +33,13 @@ export const register = createAppThunk(
     }
 );
 
+export const refreshToken = createAppThunk(
+    'auth/refreshToken',
+    async (payload: {refreshToken: string}) => {
+        return await authService.refreshToken(payload.refreshToken);
+    }
+);
+
 export const sendResetPasswordOtp = createAppThunk(
     'auth/sendResetPasswordOtp',
     async (payload: {phoneNumber: string}) => {
@@ -59,6 +66,7 @@ const authSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
+            // Login cases
             .addCase(login.pending, (state) => {
                 state.loading = true;
             })
@@ -67,10 +75,18 @@ const authSlice = createSlice({
                 state.accessToken = action.payload.accessToken;
                 state.userId = action.payload.userId;
                 state.loading = false;
+
+                // Save auth data to storage
+                storageService.setItem(AUTH_DATA_KEY, {
+                    refreshToken: action.payload.refreshToken,
+                    accessToken: action.payload.accessToken,
+                    userId: action.payload.userId
+                });
             })
             .addCase(login.rejected, (state, action) => {
                 state.loading = false;
             })
+            // Regsiter cases
             .addCase(register.pending, (state) => {
                 state.loading = true;
             })
@@ -79,10 +95,31 @@ const authSlice = createSlice({
                 state.accessToken = action.payload.accessToken;
                 state.userId = action.payload.userId;
                 state.loading = false;
+
+                // Save auth data to storage
+                storageService.setItem(AUTH_DATA_KEY, {
+                    refreshToken: action.payload.refreshToken,
+                    accessToken: action.payload.accessToken,
+                    userId: action.payload.userId
+                });
             })
             .addCase(register.rejected, (state, action) => {
                 state.loading = false;
             })
+            // Refresh token cases
+            .addCase(refreshToken.fulfilled, (state, action) => {
+                state.refreshToken = action.payload.refreshToken;
+                state.accessToken = action.payload.accessToken;
+
+                // Update auth data in storage
+                storageService.setItem(AUTH_DATA_KEY, {
+                    refreshToken: action.payload.refreshToken,
+                    accessToken: action.payload.accessToken,
+                    userId: state.userId
+                });
+            })
+
+            // Reset password cases
             .addCase(sendResetPasswordOtp.pending, (state) => {
                 state.loading = true;
             })
@@ -92,6 +129,8 @@ const authSlice = createSlice({
             .addCase(sendResetPasswordOtp.rejected, (state, action: any) => {
                 state.loading = false;
             })
+
+            // Reset password cases
             .addCase(resetPassword.pending, (state) => {
                 state.loading = true;
             })

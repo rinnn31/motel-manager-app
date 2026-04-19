@@ -10,6 +10,7 @@ export default <Returned, Arg>(
             try {
                 return await fn(arg, thunkAPI);
             } catch (error: any) {
+                console.error(`Error in thunk ${type}:`, error);
                 return thunkAPI.rejectWithValue(
                     error.response?.data || {
                         success: false,

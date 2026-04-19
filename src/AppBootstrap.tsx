@@ -1,9 +1,12 @@
 import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { useAppDispatch } from "./store/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks";
 import storageService from "./services/storageService";
 import { setHydrate } from "./features/auth/store/auth.slice";
 import { AUTH_DATA_KEY } from "./constants/storage.constants";
+import accountService from "./features/account/services/accountService";
+import { updateProfile } from "./features/account/store/account.slice";
+
 export default function AppBootstrap({ children }) {
     const dispatch = useAppDispatch();
     const [loading, setLoading] = useState(true);
@@ -11,15 +14,30 @@ export default function AppBootstrap({ children }) {
     useEffect(() => {
         const init = async () => {
             const authData = await storageService.getItem(AUTH_DATA_KEY);
+            console.log("AppBootstrap - Loaded auth data from storage:", authData);
+            try {
+                if (authData?.accessToken && authData?.userId && authData?.refreshToken) { 
+                    await dispatch(setHydrate({
+                        refreshToken: authData.refreshToken,
+                        accessToken: authData.accessToken,
+                        userId: authData.userId,
+                    }));
 
-            dispatch(
-                setHydrate({
-                    refreshToken: authData?.refreshToken || null,
-                    accessToken: authData?.accessToken || null,
-                    userId: authData?.userId || null,
-                })
-            );
-
+                    const userInfo = await accountService.getUserInfo();
+                    // Update profile to trigger token refresh if access token is expired
+                    await dispatch(updateProfile(userInfo));
+                }
+                
+            } catch (error) {
+                // Load user info failed, clear auth data to force re-login
+                await storageService.removeItem(AUTH_DATA_KEY);
+                await dispatch(setHydrate({
+                    refreshToken: null,
+                    accessToken: null,
+                    userId: null,
+                }));
+            }
+            
             setLoading(false);
         };
 

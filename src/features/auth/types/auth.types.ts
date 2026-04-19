@@ -1,5 +1,4 @@
-import { ApiResponse } from "../../../types/api.types"
-import { UserInfo } from "../../../types/account.types"
+import { UserInfo } from "../../account/types/account.types";
 
 interface TokenData {
     refreshToken: string,

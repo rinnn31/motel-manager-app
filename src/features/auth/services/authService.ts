@@ -1,4 +1,4 @@
-import { AuthService, AuthenticationData, LoginRequest, RegisterRequest, ResetPasswordRequest } from "../types/auth.types";
+import { AuthService, LoginRequest, RegisterRequest, ResetPasswordRequest } from "../types/auth.types";
 import apiClient from "../../../services/apiClient";
 
 const authService : AuthService = {
@@ -6,7 +6,7 @@ const authService : AuthService = {
         const response =  await apiClient.post("/auth/login", data, {
             skipAuth: true
         });
-        return response.data;
+        return response.data.data;
     },
     logout: async (refreshToken: string) => {
         const response = await apiClient.post("/auth/logout", {
@@ -14,13 +14,13 @@ const authService : AuthService = {
                 refreshToken: refreshToken
             }
         });
-        return response.data;
+        return response.data.data;
     },
     register: async (data: RegisterRequest) => {
         const response = await apiClient.post("/auth/register", data, {
             skipAuth: true
         });
-        return response.data;
+        return response.data.data;
     },
     sendResetPasswordOtp: async (phoneNumber: string) => {
         await apiClient.post("/auth/send-reset-password-otp", null, {
@@ -42,7 +42,7 @@ const authService : AuthService = {
             },
             skipAuth: true
         });
-        return response.data;
+        return response.data.data;
     }
 }
 
