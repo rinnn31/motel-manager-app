@@ -8,11 +8,8 @@ import {
 } from "react-native";
 import { useAppDispatch, useAppSelector } from "../../../store/hooks";
 import { selectAuthLoading } from "../store/auth.selector";
-import {
-    resetPassword,
-    sendResetPasswordOtp,
-} from "../store/auth.slice";
 import OtpInput from "../../../components/common/OtpInput";
+import authService from "../services/authService";
 
 export default function ResetPasswordOtpScreen({ route, navigation }) {
     const { phone } = route.params;
@@ -27,12 +24,7 @@ export default function ResetPasswordOtpScreen({ route, navigation }) {
 
     const handleNext = async () => {
         try {
-            await dispatch(
-                resetPassword({
-                    phoneNumber: phone,
-                    verificationCode: otp
-                })
-            ).unwrap();
+            await authService.resetPassword({ phoneNumber: phone, code: otp });
 
             navigation.navigate("ResetPasswordNewPass", {
                 phone,
@@ -44,9 +36,11 @@ export default function ResetPasswordOtpScreen({ route, navigation }) {
     };
 
     const handleResend = async () => {
-        await dispatch(
-            sendResetPasswordOtp({ phoneNumber: phone })
-        ).unwrap();
+        try {
+            await authService.sendResetPasswordOtp(phone);
+        } catch (e: any) {
+            setError(e.message || "Có lỗi khi gửi lại mã, vui lòng thử lại sau");
+        }
     };
 
     return (

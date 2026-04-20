@@ -40,17 +40,10 @@ export const refreshToken = createAppThunk(
     }
 );
 
-export const sendResetPasswordOtp = createAppThunk(
-    'auth/sendResetPasswordOtp',
-    async (payload: {phoneNumber: string}) => {
-        await authService.sendResetPasswordOtp(payload.phoneNumber);
-    }
-);
-
-export const resetPassword = createAppThunk(
-    'auth/resetPassword',
-    async (payload: ResetPasswordRequest) => {
-        await authService.resetPassword(payload);
+export const logout = createAppThunk(
+    'auth/logout',
+    async (payload: {refreshToken: string}) => {
+        await authService.logout(payload.refreshToken);
     }
 );
 
@@ -118,27 +111,19 @@ const authSlice = createSlice({
                     userId: state.userId
                 });
             })
-
-            // Reset password cases
-            .addCase(sendResetPasswordOtp.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(sendResetPasswordOtp.fulfilled, (state) => {
-                state.loading = false;
-            })
-            .addCase(sendResetPasswordOtp.rejected, (state, action: any) => {
-                state.loading = false;
+            .addCase(refreshToken.rejected, (state) => {
+                state.refreshToken = null;
+                state.accessToken = null;
+                state.userId = null;
             })
 
-            // Reset password cases
-            .addCase(resetPassword.pending, (state) => {
-                state.loading = true;
-            })
-            .addCase(resetPassword.fulfilled, (state) => {
-                state.loading = false;
-            })
-            .addCase(resetPassword.rejected, (state, action) => {
-                state.loading = false;
+            .addCase(logout.fulfilled, (state) => {
+                state.refreshToken = null;
+                state.accessToken = null;
+                state.userId = null;
+
+                // Remove auth data from storage
+                storageService.removeItem(AUTH_DATA_KEY);
             });
     }
 });

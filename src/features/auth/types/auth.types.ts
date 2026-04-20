@@ -27,7 +27,7 @@ interface LoginRequest {
 
 interface ResetPasswordRequest {
     phoneNumber: string,
-    verificationCode: string,
+    code: string,
     newPassword?: string
 }
 

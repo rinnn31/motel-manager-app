@@ -9,7 +9,7 @@ const authService : AuthService = {
         return response.data.data;
     },
     logout: async (refreshToken: string) => {
-        const response = await apiClient.post("/auth/logout", {
+        const response = await apiClient.post("/auth/logout", null, {
             params : {
                 refreshToken: refreshToken
             }

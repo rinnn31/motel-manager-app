@@ -1,9 +1,7 @@
 import { SERVER_URL } from '@env';
-import axios, { AxiosError, AxiosResponse } from 'axios';
-import { AUTH_DATA_KEY } from '../constants/storage.constants';
-import storageService from './storageService';
+import axios from 'axios';
 import { store } from '../store';
-import authService from '../features/auth/services/authService';
+import { refreshToken } from '../features/auth/store/auth.slice';
 
 const apiClient = axios.create({
     baseURL: SERVER_URL,
@@ -45,11 +43,9 @@ apiClient.interceptors.response.use(
     response => response,
     async error => {
         const originalRequest = error.config;
-        // Only attempt token refresh for API requests, not for other URLs
-        if (!originalRequest.url.startsWith(SERVER_URL)) {
-            return Promise.reject(error);
-        }
         if (error.response?.status !== 401 || originalRequest._retry) return Promise.reject(error);
+
+        console.log("Access token expired, attempting to refresh...");
 
         if (isRefreshingToken) {
             return new Promise(function (resolve, reject) {
@@ -69,6 +65,7 @@ apiClient.interceptors.response.use(
 
         try {
             const authData = store.getState().auth;
+            console.log("Current refresh token:", authData);
             if (!authData?.refreshToken) {
                 return Promise.reject(error);
             }
@@ -88,7 +85,3 @@ apiClient.interceptors.response.use(
 );
 
 export default apiClient;
-
-function refreshToken(arg0: { refreshToken: any }): any {
-    throw new Error('Function not implemented.');
-}
