@@ -6,43 +6,58 @@ import {
     TouchableOpacity,
     ActivityIndicator,
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectAuthLoading } from "../store/auth.selector";
-import { sendResetPasswordOtp } from "../store/auth.slice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { resetPassword } from "../../store/auth/authSlice";
+import { selectAuthLoading } from "../../store/auth/authSelectors";
+import PasswordInput from "../../components/common/PasswordInput";
 
-export default function ResetPasswordPhoneScreen({ navigation }) {
-    const [phone, setPhone] = useState("");
+export default function ResetPasswordNewPassScreen({ route, navigation }) {
+    const { phone, otp } = route.params;
+
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    
     const [error, setError] = useState<string | null>(null);
 
+    const [touched, setTouched] = useState({
+        password: false,
+        confirm: false,
+    });
+
+    const passwordError = touched.password && password.length < 8 ? "Mật khẩu tối thiểu 8 ký tự" : null;
+    const confirmError = touched.confirm && confirmPassword !== password ? "Mật khẩu không khớp" : null;
+
+    const isValid = password.length >= 8 && confirmPassword === password;
     const dispatch = useAppDispatch();
     const loading = useAppSelector(selectAuthLoading);
 
-    const isValid = phone.length >= 10;
-
-    const handleNext = async () => {
+    const handleSubmit = async () => {
         try {
             await dispatch(
-                sendResetPasswordOtp({ phoneNumber: phone })
+                resetPassword({
+                    phoneNumber: phone,
+                    verificationCode: otp,
+                    newPassword: password,
+                })
             ).unwrap();
 
-            navigation.navigate("ResetPasswordOtp", {
-                phone,
+            navigation.reset({
+                index: 0,
+                routes: [{ name: "Login" }],
             });
         } catch (e: any) {
-            setError(e.message || "Lỗi không xác định");
+            setError(e.message || "Đặt lại mật khẩu thất bại");
         }
     };
 
     return (
         <View className="flex-1 bg-white">
-
             {/* Background giống Login */}
             <View className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-indigo-400 opacity-20" />
             <View className="absolute top-40 -left-20 w-60 h-60 rounded-full bg-purple-300 opacity-20" />
 
             <View className="flex-1 px-6 pt-20 pb-10 justify-between">
 
-                {/* Header */}
                 <View>
                     <View className="w-16 h-16 rounded-2xl bg-indigo-600 items-center justify-center mb-8 shadow-md">
                         <Text className="text-white text-2xl font-bold">◆</Text>
@@ -53,33 +68,35 @@ export default function ResetPasswordPhoneScreen({ navigation }) {
                     </Text>
 
                     <Text className="text-gray-900 text-4xl font-bold leading-tight">
-                        Quên mật khẩu
+                        Tạo mật khẩu mới
                     </Text>
 
                     <Text className="text-gray-500 mt-2">
-                        Nhập số điện thoại để nhận mã OTP
+                        Nhập mật khẩu mới cho tài khoản của bạn
                     </Text>
                 </View>
 
                 {/* Form */}
                 <View className="-mt-40">
 
-                    {/* Phone input */}
-                    <View className="mb-4">
-                        <Text className="text-gray-500 text-xs mb-2 ml-1">
-                            Số điện thoại
-                        </Text>
+                    {/* Password input */}
+                    <PasswordInput
+                        label="Mật khẩu mới"
+                        placeholder="Nhập mật khẩu mới"
+                        value={password}
+                        onChangeText={setPassword}
+                        onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
+                        error={passwordError}
+                    />
 
-                        <View className="bg-gray-50 border border-gray-200 rounded-2xl px-4 h-14 justify-center">
-                            <TextInput
-                                placeholder="Nhập số điện thoại"
-                                value={phone}
-                                onChangeText={setPhone}
-                                keyboardType="phone-pad"
-                                className="text-gray-900 text-base"
-                            />
-                        </View>
-                    </View>
+                    <PasswordInput
+                        label="Xác nhận mật khẩu"
+                        placeholder="Nhập lại mật khẩu mới"
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
+                        onBlur={() => setTouched((prev) => ({ ...prev, confirm: true }))}
+                        error={confirmError}
+                    />
 
                     {/* Error */}
                     {error && (
@@ -92,7 +109,7 @@ export default function ResetPasswordPhoneScreen({ navigation }) {
 
                     {/* Button */}
                     <TouchableOpacity
-                        onPress={handleNext}
+                        onPress={handleSubmit}
                         disabled={!isValid || loading}
                         className={`rounded-2xl py-4 items-center ${
                             isValid && !loading
@@ -104,7 +121,7 @@ export default function ResetPasswordPhoneScreen({ navigation }) {
                             <ActivityIndicator color="white" />
                         ) : (
                             <Text className="text-white font-bold text-base">
-                                Tiếp tục
+                                Đặt lại mật khẩu
                             </Text>
                         )}
                     </TouchableOpacity>

@@ -10,10 +10,10 @@ import {
     Keyboard,
     ActivityIndicator
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { updateProfile } from "../store/account.slice";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import accountService from "../services/accountService";
+import accountService from "../../services/accountService";
+import { updateProfile } from "../../store/account/accountSlice";
+import { useAppDispatch } from "../../store/hooks";
 
 export default function EditNameScreen({ navigation }) {
     const [name, setName] = useState("");

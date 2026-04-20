@@ -3,18 +3,17 @@ import React, { useState } from "react";
 import {
     View,
     Text,
-    TextInput,
     TouchableOpacity,
     ScrollView,
     KeyboardAvoidingView,
     Platform,
     ActivityIndicator,
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { login } from "../store/auth.slice";
-import { selectAuthLoading } from "../store/auth.selector";
-import Input from "../../../components/common/Input";
-import PasswordInput from "../../../components/common/PasswordInput";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { login } from "../../store/auth/authSlice";
+import { selectAuthLoading } from "../../store/auth/authSelectors";
+import Input from "../../components/common/Input";
+import PasswordInput from "../../components/common/PasswordInput";
 
 export default function PhoneLoginScreen() {
     const [phoneNumber, setPhoneNumber] = useState("");

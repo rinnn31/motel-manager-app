@@ -5,7 +5,7 @@ import {
   TouchableWithoutFeedback, Keyboard 
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import accountService from "../services/accountService";
+import accountService from "../../services/accountService";
 
 export default function ChangeNumberScreen({ route, navigation }) {
     // Lấy flag để biết đang ở luồng Settings hay Verification

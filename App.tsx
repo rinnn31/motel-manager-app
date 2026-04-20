@@ -1,4 +1,5 @@
 import "./App.css";
+import "react-native-gesture-handler";
 import RootNavigator from "./src/navigation/RootNavigator"
 import { Provider } from "react-redux";
 import { store } from "./src/store";

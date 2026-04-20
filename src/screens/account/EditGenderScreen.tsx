@@ -7,10 +7,10 @@ import {
   Platform, 
   ActivityIndicator
 } from "react-native";
-import { useAppDispatch } from "../../../store/hooks";
-import { updateProfile } from "../store/account.slice";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import accountService from "../services/accountService";
+import accountService from "../../services/accountService";
+import { updateProfile } from "../../store/account/accountSlice";
+import { useAppDispatch } from "../../store/hooks";
 
 const GENDER_OPTIONS = [
   { id: 0, label: 'Nam'},

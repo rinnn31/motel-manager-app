@@ -1,10 +1,10 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack"
-import AccountSettingsScreen from "../features/account/screens/AccountSettingsScreen";
-import EditNameScreen from "../features/account/screens/EditNameScreen";
-import EditGenderScreen from "../features/account/screens/EditGenderScreen";
-import ChangeNumberScreen from "../features/account/screens/ChangeNumberScreen";
-import InputOTPScreen from "../features/account/screens/InputOtpScreen";
-import ChangePasswordScreen from "../features/account/screens/ChangePasswordScreen";
+import AccountSettingsScreen from "../screens/account/AccountSettingsScreen";
+import ChangeNumberScreen from "../screens/account/ChangeNumberScreen";
+import ChangePasswordScreen from "../screens/account/ChangePasswordScreen";
+import EditGenderScreen from "../screens/account/EditGenderScreen";
+import EditNameScreen from "../screens/account/EditNameScreen";
+import InputOTPScreen from "../screens/account/InputOtpScreen";
 
 const Stack = createNativeStackNavigator();
 

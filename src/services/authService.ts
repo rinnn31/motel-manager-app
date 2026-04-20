@@ -1,5 +1,5 @@
-import { AuthService, LoginRequest, RegisterRequest, ResetPasswordRequest } from "../types/auth.types";
-import apiClient from "../../../services/apiClient";
+import { AuthService, LoginRequest, RegisterRequest, ResetPasswordRequest } from "../types/authTypes";
+import apiClient from "./apiClient";
 
 const authService : AuthService = {
     login: async (data: LoginRequest) => {

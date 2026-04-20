@@ -1,6 +1,6 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { UserInfo } from "../types/account.types";
-import { login, register } from "../../auth/store/auth.slice";
+import { UserInfo } from "../../types/accountTypes";
+import { login, register } from "../auth/authSlice";
 
 interface AccountState {
     user: UserInfo | null;

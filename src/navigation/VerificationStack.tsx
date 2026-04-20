@@ -1,6 +1,6 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import InputOTPScreen from "../features/account/screens/InputOtpScreen";
-import ChangeNumberScreen from "../features/account/screens/ChangeNumberScreen";
+import InputOTPScreen from "../screens/account/InputOtpScreen";
+import ChangeNumberScreen from "../screens/account/ChangeNumberScreen";
 
 const Stack = createNativeStackNavigator();
 

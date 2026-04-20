@@ -4,6 +4,7 @@ import MotelStack from "./MotelStack";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import { Platform, View } from "react-native";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
+import NotificationScreen from "../screens/notification/NotificationScreen";
 
 const Tab = createBottomTabNavigator();
 
@@ -17,7 +18,14 @@ export default function AppTab() {
 
                 return {
                     tabBarIcon: ({ focused, color }) => {
-                        let iconName = route.name === "Motel" ? "home-work" : "person";
+                        let iconName = "";
+                        if (route.name === "Motel") {
+                            iconName = "home";
+                        } else if (route.name === "Notifications") {
+                            iconName = "notifications";
+                        } else if (route.name === "Account") {
+                            iconName = "person";
+                        }
                         return (
                             <MaterialIcons name={iconName} size={focused ? 26 : 24} color={color} />
                         );
@@ -44,6 +52,7 @@ export default function AppTab() {
             }}
         >
             <Tab.Screen name="Motel" component={MotelStack} options={{tabBarLabel: "Nhà trọ"}}/>
+            <Tab.Screen name="Notifications" component={NotificationScreen} options={{tabBarLabel: "Thông báo"}} />
             <Tab.Screen name="Account" component={AccountSettingsStack} options={{tabBarLabel: "Tài khoản"}} />
         </Tab.Navigator>
     );

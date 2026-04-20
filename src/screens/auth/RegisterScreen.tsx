@@ -10,12 +10,12 @@ import {
     ActivityIndicator,
 } from "react-native";
 
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { register } from "../store/auth.slice";
-import { selectAuthLoading } from "../store/auth.selector";
-import SelectPicker from "../../../components/common/SelectPicker";
-import Input from "../../../components/common/Input";
-import PasswordInput from "../../../components/common/PasswordInput";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { register } from "../../store/auth/authSlice";
+import { selectAuthLoading } from "../../store/auth/authSelectors";
+import SelectPicker from "../../components/common/SelectPicker";
+import Input from "../../components/common/Input";
+import PasswordInput from "../../components/common/PasswordInput";
 
 export default function RegisterScreen() {
     const navigation = useNavigation<any>();

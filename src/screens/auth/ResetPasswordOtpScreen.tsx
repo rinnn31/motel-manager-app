@@ -6,97 +6,88 @@ import {
     TouchableOpacity,
     ActivityIndicator,
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { resetPassword } from "../store/auth.slice";
-import { selectAuthLoading } from "../store/auth.selector";
-import PasswordInput from "../../../components/common/PasswordInput";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { selectAuthLoading } from "../../store/auth/authSelectors";
+import OtpInput from "../../components/common/OtpInput";
+import authService from "../../services/authService";
 
-export default function ResetPasswordNewPassScreen({ route, navigation }) {
-    const { phone, otp } = route.params;
+export default function ResetPasswordOtpScreen({ route, navigation }) {
+    const { phone } = route.params;
 
-    const [password, setPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState("");
-    
-    const [error, setError] = useState<string | null>(null);
+    const [otp, setOtp] = useState("");
 
-    const [touched, setTouched] = useState({
-        password: false,
-        confirm: false,
-    });
-
-    const passwordError = touched.password && password.length < 8 ? "Mật khẩu tối thiểu 8 ký tự" : null;
-    const confirmError = touched.confirm && confirmPassword !== password ? "Mật khẩu không khớp" : null;
-
-    const isValid = password.length >= 8 && confirmPassword === password;
     const dispatch = useAppDispatch();
     const loading = useAppSelector(selectAuthLoading);
+    const [error, setError] = useState<string | null>(null);
 
-    const handleSubmit = async () => {
+    const isValid = otp.length === 6;
+
+    const handleNext = async () => {
         try {
-            await dispatch(
-                resetPassword({
-                    phoneNumber: phone,
-                    verificationCode: otp,
-                    newPassword: password,
-                })
-            ).unwrap();
+            await authService.resetPassword({ phoneNumber: phone, code: otp });
 
-            navigation.reset({
-                index: 0,
-                routes: [{ name: "Login" }],
+            navigation.navigate("ResetPasswordNewPass", {
+                phone,
+                otp,
             });
         } catch (e: any) {
-            setError(e.message || "Đặt lại mật khẩu thất bại");
+            setError(e.message || "Xác thực OTP thất bại");
+        }
+    };
+
+    const handleResend = async () => {
+        try {
+            await authService.sendResetPasswordOtp(phone);
+        } catch (e: any) {
+            setError(e.message || "Có lỗi khi gửi lại mã, vui lòng thử lại sau");
         }
     };
 
     return (
         <View className="flex-1 bg-white">
+
             {/* Background giống Login */}
             <View className="absolute -top-24 -right-20 w-72 h-72 rounded-full bg-indigo-400 opacity-20" />
             <View className="absolute top-40 -left-20 w-60 h-60 rounded-full bg-purple-300 opacity-20" />
 
             <View className="flex-1 px-6 pt-20 pb-10 justify-between">
 
+                {/* Header */}
                 <View>
                     <View className="w-16 h-16 rounded-2xl bg-indigo-600 items-center justify-center mb-8 shadow-md">
                         <Text className="text-white text-2xl font-bold">◆</Text>
                     </View>
 
                     <Text className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-                        Khôi phục mật khẩu
+                        Xác thực OTP
                     </Text>
 
                     <Text className="text-gray-900 text-4xl font-bold leading-tight">
-                        Tạo mật khẩu mới
+                        Nhập mã xác nhận
                     </Text>
 
                     <Text className="text-gray-500 mt-2">
-                        Nhập mật khẩu mới cho tài khoản của bạn
+                        Mã OTP đã được gửi đến{" "}
+                        <Text className="font-semibold text-gray-700">
+                            {phone}
+                        </Text>
                     </Text>
                 </View>
 
                 {/* Form */}
                 <View className="-mt-40">
 
-                    {/* Password input */}
-                    <PasswordInput
-                        label="Mật khẩu mới"
-                        placeholder="Nhập mật khẩu mới"
-                        value={password}
-                        onChangeText={setPassword}
-                        onBlur={() => setTouched((prev) => ({ ...prev, password: true }))}
-                        error={passwordError}
-                    />
+                    {/* OTP input */}
+                    <View className="mb-4">
+                        <Text className="text-gray-500 text-xs mb-2 ml-1">
+                            Mã OTP
+                        </Text>
 
-                    <PasswordInput
-                        label="Xác nhận mật khẩu"
-                        placeholder="Nhập lại mật khẩu mới"
-                        value={confirmPassword}
-                        onChangeText={setConfirmPassword}
-                        onBlur={() => setTouched((prev) => ({ ...prev, confirm: true }))}
-                        error={confirmError}
-                    />
+                        <OtpInput
+                            value={otp}
+                            onChange={setOtp}
+                        />
+                    </View>
 
                     {/* Error */}
                     {error && (
@@ -107,9 +98,19 @@ export default function ResetPasswordNewPassScreen({ route, navigation }) {
                         </View>
                     )}
 
+                    {/* Resend */}
+                    <TouchableOpacity
+                        onPress={handleResend}
+                        className="mb-6"
+                    >
+                        <Text className="text-indigo-600 text-sm font-medium text-right">
+                            Gửi lại OTP
+                        </Text>
+                    </TouchableOpacity>
+
                     {/* Button */}
                     <TouchableOpacity
-                        onPress={handleSubmit}
+                        onPress={handleNext}
                         disabled={!isValid || loading}
                         className={`rounded-2xl py-4 items-center ${
                             isValid && !loading
@@ -121,7 +122,7 @@ export default function ResetPasswordNewPassScreen({ route, navigation }) {
                             <ActivityIndicator color="white" />
                         ) : (
                             <Text className="text-white font-bold text-base">
-                                Đặt lại mật khẩu
+                                Tiếp theo
                             </Text>
                         )}
                     </TouchableOpacity>

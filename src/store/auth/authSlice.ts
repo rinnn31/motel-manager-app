@@ -1,9 +1,9 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { LoginRequest, RegisterRequest, ResetPasswordRequest } from "../types/auth.types";
-import authService from "../services/authService";
-import createAppThunk from "../../../store/createAppThunk";
-import storageService from "../../../services/storageService";
-import { AUTH_DATA_KEY } from "../../../constants/storage.constants";
+import { LoginRequest, RegisterRequest, ResetPasswordRequest } from "../../types/authTypes";
+import authService from "../../services/authService";
+import createAppThunk from "../createAppThunk";
+import storageService from "../../services/storageService";
+import { AUTH_DATA_KEY } from "../../constants/storage.constants";
 
 interface AuthState {
     refreshToken: string | null,

@@ -1,5 +1,5 @@
-import apiClient from "../../../services/apiClient";
-import { AccountService, ChangePasswordRequest, UpdateProfileRequest, VerifyContactPointRequest } from "../types/account.types";
+import apiClient from "./apiClient";
+import { AccountService, ChangePasswordRequest, UpdateProfileRequest, VerifyContactPointRequest } from "../types/accountTypes";
 
 const accountService: AccountService = {
     getUserInfo: async () => {

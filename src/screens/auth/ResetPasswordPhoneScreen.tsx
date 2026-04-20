@@ -6,40 +6,30 @@ import {
     TouchableOpacity,
     ActivityIndicator,
 } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import { selectAuthLoading } from "../store/auth.selector";
-import OtpInput from "../../../components/common/OtpInput";
-import authService from "../services/authService";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { selectAuthLoading } from "../../store/auth/authSelectors";
+import { sendResetPasswordOtp } from "../../store/auth/authSlice";
 
-export default function ResetPasswordOtpScreen({ route, navigation }) {
-    const { phone } = route.params;
-
-    const [otp, setOtp] = useState("");
+export default function ResetPasswordPhoneScreen({ navigation }) {
+    const [phone, setPhone] = useState("");
+    const [error, setError] = useState<string | null>(null);
 
     const dispatch = useAppDispatch();
     const loading = useAppSelector(selectAuthLoading);
-    const [error, setError] = useState<string | null>(null);
 
-    const isValid = otp.length === 6;
+    const isValid = phone.length >= 10;
 
     const handleNext = async () => {
         try {
-            await authService.resetPassword({ phoneNumber: phone, code: otp });
+            await dispatch(
+                sendResetPasswordOtp({ phoneNumber: phone })
+            ).unwrap();
 
-            navigation.navigate("ResetPasswordNewPass", {
+            navigation.navigate("ResetPasswordOtp", {
                 phone,
-                otp,
             });
         } catch (e: any) {
-            setError(e.message || "Xác thực OTP thất bại");
-        }
-    };
-
-    const handleResend = async () => {
-        try {
-            await authService.sendResetPasswordOtp(phone);
-        } catch (e: any) {
-            setError(e.message || "Có lỗi khi gửi lại mã, vui lòng thử lại sau");
+            setError(e.message || "Lỗi không xác định");
         }
     };
 
@@ -59,34 +49,36 @@ export default function ResetPasswordOtpScreen({ route, navigation }) {
                     </View>
 
                     <Text className="text-gray-400 text-xs uppercase tracking-widest mb-2">
-                        Xác thực OTP
+                        Khôi phục mật khẩu
                     </Text>
 
                     <Text className="text-gray-900 text-4xl font-bold leading-tight">
-                        Nhập mã xác nhận
+                        Quên mật khẩu
                     </Text>
 
                     <Text className="text-gray-500 mt-2">
-                        Mã OTP đã được gửi đến{" "}
-                        <Text className="font-semibold text-gray-700">
-                            {phone}
-                        </Text>
+                        Nhập số điện thoại để nhận mã OTP
                     </Text>
                 </View>
 
                 {/* Form */}
                 <View className="-mt-40">
 
-                    {/* OTP input */}
+                    {/* Phone input */}
                     <View className="mb-4">
                         <Text className="text-gray-500 text-xs mb-2 ml-1">
-                            Mã OTP
+                            Số điện thoại
                         </Text>
 
-                        <OtpInput
-                            value={otp}
-                            onChange={setOtp}
-                        />
+                        <View className="bg-gray-50 border border-gray-200 rounded-2xl px-4 h-14 justify-center">
+                            <TextInput
+                                placeholder="Nhập số điện thoại"
+                                value={phone}
+                                onChangeText={setPhone}
+                                keyboardType="phone-pad"
+                                className="text-gray-900 text-base"
+                            />
+                        </View>
                     </View>
 
                     {/* Error */}
@@ -97,16 +89,6 @@ export default function ResetPasswordOtpScreen({ route, navigation }) {
                             </Text>
                         </View>
                     )}
-
-                    {/* Resend */}
-                    <TouchableOpacity
-                        onPress={handleResend}
-                        className="mb-6"
-                    >
-                        <Text className="text-indigo-600 text-sm font-medium text-right">
-                            Gửi lại OTP
-                        </Text>
-                    </TouchableOpacity>
 
                     {/* Button */}
                     <TouchableOpacity
@@ -122,7 +104,7 @@ export default function ResetPasswordOtpScreen({ route, navigation }) {
                             <ActivityIndicator color="white" />
                         ) : (
                             <Text className="text-white font-bold text-base">
-                                Tiếp theo
+                                Tiếp tục
                             </Text>
                         )}
                     </TouchableOpacity>

@@ -1,5 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
-import EditGenderScreen from "../features/account/screens/EditGenderScreen";
+import EditGenderScreen from "../screens/account/EditGenderScreen";
 
 const Stack = createNativeStackNavigator();
 

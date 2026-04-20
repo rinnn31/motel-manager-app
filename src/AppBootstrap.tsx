@@ -2,10 +2,10 @@ import { useEffect, useState } from "react";
 import { View, ActivityIndicator } from "react-native";
 import { useAppDispatch, useAppSelector } from "./store/hooks";
 import storageService from "./services/storageService";
-import { setHydrate } from "./features/auth/store/auth.slice";
+import { setHydrate } from "./store/auth/authSlice";
 import { AUTH_DATA_KEY } from "./constants/storage.constants";
-import accountService from "./features/account/services/accountService";
-import { updateProfile } from "./features/account/store/account.slice";
+import accountService from "./services/accountService";
+import { updateProfile } from "./store/account/accountSlice";
 
 export default function AppBootstrap({ children }) {
     const dispatch = useAppDispatch();

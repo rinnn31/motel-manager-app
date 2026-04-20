@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { KeyboardAvoidingView, Platform, View, Pressable, Text, TextInput, ActivityIndicator, TouchableOpacity } from "react-native";
-import { useAppDispatch, useAppSelector } from "../../../store/hooks";
-import accountService from "../services/accountService";
-import { updateProfile } from "../store/account.slice";
+import { KeyboardAvoidingView, Platform, View, Pressable, Text, ActivityIndicator } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import OTPInput from "../../../components/common/OtpInput";
-import { selectUser } from "../store/account.selector";
-import { hidePhoneNumber } from "../../../utils/formats";
+import OTPInput from "../../components/common/OtpInput";
+import accountService from "../../services/accountService";
+import { selectUser } from "../../store/account/accountSelectors";
+import { updateProfile } from "../../store/account/accountSlice";
+import { useAppDispatch, useAppSelector } from "../../store/hooks";
+import { hidePhoneNumber } from "../../utils/formats";
 
 export default function InputOTPScreen({ route, navigation }) {
     // Thêm isFromVerification từ params

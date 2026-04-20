@@ -1,13 +1,13 @@
 import React from "react";
 import { View, Text, Alert, ScrollView, Pressable } from "react-native";
-import { useAppSelector, useAppDispatch } from "../../../store/hooks";
-import { selectUser } from "../store/account.selector";
-import { logout } from "../../auth/store/auth.slice"; // Giả sử đường dẫn này
-import LabelValueSettingItem from "../components/LabelValueSettingItem";
 import FontAwesome from "react-native-vector-icons/FontAwesome6";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { selectAuthData } from "../../auth/store/auth.selector";
-import SettingEntryItem from "../components/SettingEntryItem";
+import LabelValueSettingItem from "../../components/modules/account/LabelValueSettingItem";
+import SettingEntryItem from "../../components/modules/account/SettingEntryItem";
+import { selectUser } from "../../store/account/accountSelectors";
+import { selectAuthData } from "../../store/auth/authSelectors";
+import { logout } from "../../store/auth/authSlice";
+import { useAppSelector, useAppDispatch } from "../../store/hooks";
 
 export default function AccountSettingsScreen({ navigation }) {
     const user = useAppSelector(selectUser);

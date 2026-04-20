@@ -1,4 +1,4 @@
-import { UserInfo } from "../../account/types/account.types";
+import { UserInfo } from "./accountTypes";
 
 interface TokenData {
     refreshToken: string,

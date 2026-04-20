@@ -12,7 +12,7 @@ import {
     ScrollView,
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import accountService from "../services/accountService";
+import accountService from "../../services/accountService";
 
 export default function ChangePasswordScreen({ navigation }) {
     const [passwords, setPasswords] = useState({

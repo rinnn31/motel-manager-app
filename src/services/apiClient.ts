@@ -1,7 +1,7 @@
 import { SERVER_URL } from '@env';
 import axios from 'axios';
 import { store } from '../store';
-import { refreshToken } from '../features/auth/store/auth.slice';
+import { refreshToken } from '../store/auth/authSlice';
 
 const apiClient = axios.create({
     baseURL: SERVER_URL,
