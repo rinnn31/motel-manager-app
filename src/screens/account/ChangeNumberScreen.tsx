@@ -1,16 +1,16 @@
 import { useState } from "react";
-import { 
-  View, Text, TextInput, Pressable, 
-  StatusBar, Platform, KeyboardAvoidingView,
-  TouchableWithoutFeedback, Keyboard 
+import {
+    View, Text, TextInput, Pressable,
+    Platform, KeyboardAvoidingView,
+    TouchableWithoutFeedback, Keyboard,
+    ActivityIndicator
 } from "react-native";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import accountService from "../../services/accountService";
 
 export default function ChangeNumberScreen({ route, navigation }) {
-    // Lấy flag để biết đang ở luồng Settings hay Verification
     const isFromVerification = route.params?.isFromVerification || false;
-    
+
     const [phoneNumber, setPhoneNumber] = useState("");
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
@@ -30,11 +30,11 @@ export default function ChangeNumberScreen({ route, navigation }) {
             await accountService.changeContactpoint(phoneNumber);
             // 2. Yêu cầu gửi mã xác thực đến số mới
             await accountService.sendContactPointVerificationCode(phoneNumber);
-            
+
             // 3. Chuyển sang màn hình OTP, truyền kèm phoneNumber và flag luồng
-            navigation.navigate("InputOTP", { 
-                phoneNumber, 
-                isFromVerification 
+            navigation.navigate("InputOTP", {
+                phoneNumber,
+                isFromVerification
             });
         } catch (e: any) {
             setError(e.response?.data?.message || "Có lỗi xảy ra, vui lòng thử lại.");
@@ -44,16 +44,15 @@ export default function ChangeNumberScreen({ route, navigation }) {
     };
 
     return (
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
             behavior={Platform.OS === "ios" ? "padding" : "height"}
             className="flex-1 bg-white"
             style={{ paddingTop }}
         >
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View className="flex-1 px-6">
-                    {/* Back Button - Ở luồng Verification có thể ẩn nếu muốn ép user đổi xong mới được đi tiếp */}
-                    <Pressable 
-                        onPress={() => navigation.goBack()} 
+                    <Pressable
+                        onPress={() => navigation.goBack()}
                         className="mb-6 -ml-2 w-10 h-10 items-center justify-center rounded-full active:bg-gray-100"
                     >
                         <MaterialIcons name="arrow-back-ios" size={24} color="#1F2937" style={{ marginLeft: 8 }} />
@@ -84,15 +83,18 @@ export default function ChangeNumberScreen({ route, navigation }) {
 
                     <View className="flex-1" />
 
-                    <Pressable 
+                    <Pressable
                         disabled={loading || phoneNumber.length < 10}
                         onPress={handleNext}
-                        className={`mb-6 h-14 rounded-2xl items-center justify-center ${
-                            loading || phoneNumber.length < 10 ? 'bg-indigo-300' : 'bg-indigo-600'
-                        } active:scale-[0.98]`}
+                        className={`mb-6 h-14 rounded-2xl items-center justify-center ${loading || phoneNumber.length < 10 ? 'bg-indigo-300' : 'bg-indigo-600'
+                            } active:scale-[0.98]`}
                     >
                         <Text className="text-white text-lg font-bold">
-                            {loading ? "Đang xử lý..." : "Tiếp tục"}
+                            {loading ? (
+                                <ActivityIndicator size="small" color="#FFFFFF" />
+                            ) : (
+                                "Tiếp theo"
+                            )}
                         </Text>
                     </Pressable>
                 </View>

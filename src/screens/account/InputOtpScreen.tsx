@@ -22,12 +22,8 @@ export default function InputOTPScreen({ route, navigation }) {
         if (otp.length < 6) return;
         setLoading(true);
         try {
-            await accountService.verifyContactPoint({ phoneNumber: phoneNumber ?? userData?.phoneNumber, code: otp });
-            if (isFromVerification) {
-                dispatch(updateProfile({ isVerified: true }));
-            } else {
-                dispatch(updateProfile({ phoneNumber: phoneNumber }));
-            }
+            await accountService.verifyContactPoint({ phoneNumber: phoneNumber ?? userData?.phoneNumber, otp: otp });
+            dispatch(updateProfile({ phoneNumber: phoneNumber ?? userData?.phoneNumber, isVerified: true }));
         } catch (e: any) {
             setError("Mã xác thực không chính xác");
         } finally {
@@ -43,7 +39,7 @@ export default function InputOTPScreen({ route, navigation }) {
 
     const handleResend = async () => {
         try {
-            await accountService.sendContactPointVerificationCode(phoneNumber);
+            await accountService.sendContactPointVerificationCode(phoneNumber ?? userData?.phoneNumber!);
         } catch (e) {
             setError("Có lỗi khi gửi lại mã, vui lòng thử lại sau");
         }

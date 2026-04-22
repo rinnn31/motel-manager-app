@@ -8,6 +8,16 @@ export const selectUser = createSelector(
     (account) => account.user
 );
 
+export const selectIsAccountLoading = createSelector(
+    [selectAccountState],
+    (account) => account.loading
+);
+
+export const selectAccountError = createSelector(
+    [selectAccountState],
+    (account) => account.error
+);
+
 export const selectIsAccountVerified = createSelector(
     [selectUser],
     (user) => user ? user.isVerified : false

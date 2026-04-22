@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, Alert, ScrollView, Pressable } from "react-native";
+import { View, Text, Alert, ScrollView, Pressable, Image, Platform } from "react-native";
+import ImagePicker, { ImageOrVideo } from "react-native-image-crop-picker";
 import FontAwesome from "react-native-vector-icons/FontAwesome6";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import LabelValueSettingItem from "../../components/modules/account/LabelValueSettingItem";
@@ -8,27 +9,82 @@ import { selectUser } from "../../store/account/accountSelectors";
 import { selectAuthData } from "../../store/auth/authSelectors";
 import { logout } from "../../store/auth/authSlice";
 import { useAppSelector, useAppDispatch } from "../../store/hooks";
+import { check, request, PERMISSIONS, RESULTS } from "react-native-permissions";
+import ChooseItemModal from "../../components/common/ChooseItemModal";
+import { resolveMedia } from "../../utils/serverMediaResolver";
+import accountService from "../../services/accountService";
+import { updateProfile } from "../../store/account/accountSlice";
+import AppHeader from "../../components/common/AppHeader";
+import { hidePhoneNumber } from "../../utils/formats";
 
 export default function AccountSettingsScreen({ navigation }) {
     const user = useAppSelector(selectUser);
     const authData = useAppSelector(selectAuthData);
     const dispatch = useAppDispatch();
 
-    const maskPhone = (phone: string) => {
-        if (!phone) return "";
-        return "*** *** " + phone.slice(-3);
+    const genderLabel = user?.gender === 0 ? "Nam" : user?.gender === 1 ? "Nữ" : "Khác";
+
+    /* AVATAR PICKER */
+    const [isAvatarPickerVisible, setAvatarPickerVisible] = React.useState(false);
+    const items = [
+        { key: "camera", label: "Chụp ảnh mới", iconName: "camera-alt" },
+        { key: "gallery", label: "Chọn từ thư viện", iconName: "photo-library" },
+    ];
+
+    const requiredPermissions = async (type: "camera" | "gallery") => {
+        let permission;
+        if (type === "camera") {
+            permission = Platform.OS === "ios" ? PERMISSIONS.IOS.CAMERA : PERMISSIONS.ANDROID.CAMERA;
+        } else {
+            permission = Platform.OS === "ios" ?
+                PERMISSIONS.IOS.PHOTO_LIBRARY :
+                Platform.Version as number >= 33 ? PERMISSIONS.ANDROID.READ_MEDIA_IMAGES : PERMISSIONS.ANDROID.READ_EXTERNAL_STORAGE;
+        }
+
+        const result = await check(permission);
+        if (result === RESULTS.GRANTED) {
+            return true;
+        } else {
+            const requestResult = await request(permission);
+            return requestResult === RESULTS.GRANTED;
+        }
     };
 
-    const genderLabel =
-        user?.gender === 0 ? "Nam" : user?.gender === 1 ? "Nữ" : "Khác";
+    const handleAvatarPicker = async (key: string) => {
+        if (!await requiredPermissions(key as "camera" | "gallery")) {
+            return;
+        }
 
+        const options = {
+            width: 512,
+            height: 512,
+            cropping: true,
+        };
+        let result: ImageOrVideo;
+        try {
+            result = key === "camera" ? await ImagePicker.openCamera(options) : await ImagePicker.openPicker(options);
+        } catch (err) {
+            console.log("ImagePicker Error: ", err);
+            return;
+        }
+
+        try {
+            const avatarKey = await accountService.uploadAvatar(result.path, result.mime);
+            dispatch(updateProfile({ avatarUrl: avatarKey }));
+        } catch (err) {
+            console.error("Failed to upload avatar: ", err);
+            Alert.alert("Lỗi", "Không thể cập nhật ảnh đại diện. Vui lòng thử lại.");
+        }
+    }
+
+    /* LOGOUT & DELETE ACCOUNT */
     const handleLogout = () => {
         Alert.alert("Đăng xuất", "Bạn có chắc chắn muốn đăng xuất?", [
             { text: "Hủy", style: "cancel" },
-            { 
-                text: "Đăng xuất", 
-                style: "destructive", 
-                onPress: () => dispatch(logout({refreshToken: authData.refreshToken!}))
+            {
+                text: "Đăng xuất",
+                style: "destructive",
+                onPress: () => dispatch(logout({ refreshToken: authData.refreshToken! }))
             },
         ]);
     };
@@ -50,14 +106,35 @@ export default function AccountSettingsScreen({ navigation }) {
 
     return (
         <View className="flex-1 bg-gray-100">
+            <AppHeader title="Cài đặt tài khoản" />
+
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
-                {/* HEADER */}
-                <View className="items-center mb-6 mt-4">
-                    <View className="w-20 h-20 rounded-full bg-indigo-50 items-center justify-center mb-2 border border-indigo-100">
-                        <FontAwesome name="user" size={36} color="#4F46E5" />
-                    </View>
-                    <Text className="text-xl font-bold text-gray-900">
+                {/* HEADER: Updated to Flat Square Style */}
+                <View className="items-center mb-8 mt-4">
+                    <Pressable
+                        onPress={() => setAvatarPickerVisible(true)}
+                        className="w-24 h-24 bg-white items-center justify-center border border-gray-200 active:opacity-80 rounded"
+                    >
+                        {user?.avatarUrl ? (
+                            <Image
+                                source={{ uri: resolveMedia(user.avatarUrl) }}
+                                style={{ width: '100%', height: '100%' }} // Dùng style trực tiếp cho chắc chắn
+                                resizeMode="cover"
+                                onLoadStart={() => console.log("Bắt đầu tải:", resolveMedia(user?.avatarUrl!))}
+                                onError={(e) => console.log("Lỗi tải ảnh:", e.nativeEvent.error)}
+                            />
+                        ) : (
+                            <FontAwesome name="user" size={40} color="#4F46E5" />
+                        )}
+
+                        {/* Edit Overlay Label */}
+                        <View className="absolute bottom-0 w-full bg-black/40 py-1">
+                            <Text className="text-[10px] text-white text-center font-bold">SỬA</Text>
+                        </View>
+                    </Pressable>
+
+                    <Text className="text-xl font-bold text-gray-900 mt-4">
                         {user?.fullName || "Người dùng"}
                     </Text>
                 </View>
@@ -66,10 +143,10 @@ export default function AccountSettingsScreen({ navigation }) {
                 <Text className="text-gray-400 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">
                     Thông tin tài khoản
                 </Text>
-                <View className="bg-white rounded-2xl overflow-hidden mb-6 shadow-sm border border-gray-100">
+                <View className="bg-white border border-gray-100 mb-6">
                     <LabelValueSettingItem
                         label="Số điện thoại"
-                        value={maskPhone(user?.phoneNumber || "")}
+                        value={hidePhoneNumber(user?.phoneNumber || "")}
                         onPress={() => navigation.navigate("ChangeNumber", { isFromVerification: false })}
                     />
                     <LabelValueSettingItem
@@ -88,9 +165,9 @@ export default function AccountSettingsScreen({ navigation }) {
                 <Text className="text-gray-400 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">
                     Bảo mật
                 </Text>
-                <View className="bg-white rounded-2xl overflow-hidden mb-6 shadow-sm border border-gray-100">
-                <Pressable 
-                        onPress={handleLogout}
+                <View className="bg-white border border-gray-100 mb-6">
+                    <Pressable
+                        onPress={() => navigation.navigate("ChangePassword")}
                         className="flex-row items-center justify-between px-4 py-4 active:bg-gray-50 border-b border-gray-50"
                     >
                         <View className="flex-row items-center">
@@ -105,14 +182,14 @@ export default function AccountSettingsScreen({ navigation }) {
                 <Text className="text-gray-400 text-xs font-bold mb-2 ml-1 uppercase tracking-wider">
                     Hệ thống
                 </Text>
-                <View className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100">
-                    <SettingEntryItem 
+                <View className="bg-white border border-gray-100">
+                    <SettingEntryItem
                         label="Đăng xuất"
                         materialIconName="logout"
                         onPress={handleLogout}
                     />
 
-                    <SettingEntryItem 
+                    <SettingEntryItem
                         label="Xoá tài khoản"
                         materialIconName="delete-outline"
                         onPress={handleDeleteAccount}
@@ -126,6 +203,14 @@ export default function AccountSettingsScreen({ navigation }) {
                 </Text>
 
             </ScrollView>
+            <ChooseItemModal
+                visible={isAvatarPickerVisible}
+                title="Cập nhật ảnh đại diện"
+                actions={items}
+                onItemSelected={handleAvatarPicker}
+                onClose={() => setAvatarPickerVisible(false)}
+            />
+
         </View>
     );
 }

@@ -1,9 +1,11 @@
 interface UserInfo {
+    id: string,
     fullName: string,
     phoneNumber?: string,
     gender: number,
     isVerified?: boolean,
-    role?: string
+    role?: string,
+    avatarUrl?: string
 }
 
 interface ChangePasswordRequest {
@@ -18,7 +20,7 @@ interface UpdateProfileRequest {
 
 interface VerifyContactPointRequest {
     phoneNumber: string,
-    code: string
+    otp: string
 }
 
 interface AccountService {
@@ -29,7 +31,8 @@ interface AccountService {
     deleteAccount() : Promise<void>,
     updateProfile(data: UpdateProfileRequest) : Promise<void>,
     verifyContactPoint(data: VerifyContactPointRequest) : Promise<void>,
-    sendContactPointVerificationCode(phoneNumber: string) : Promise<void>
+    sendContactPointVerificationCode(phoneNumber: string) : Promise<void>,
+    uploadAvatar(fileUri, imageType) : Promise<string>
 }
 
 export type { 

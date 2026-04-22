@@ -35,7 +35,6 @@ export default function ChangePasswordScreen({ navigation }) {
     const handleSave = async () => {
         const { oldPassword, newPassword, confirmPassword } = passwords;
 
-        // Validation
         if (!oldPassword || !newPassword || !confirmPassword) {
             setError("Vui lòng điền đầy đủ các trường thông tin");
             return;
@@ -54,7 +53,6 @@ export default function ChangePasswordScreen({ navigation }) {
 
         try {
             await accountService.changePassword({ oldPassword, newPassword });
-            // Thông báo thành công (có thể dùng Toast) và quay lại
             navigation.goBack();
         } catch (e: any) {
             setError(e.response?.data?.message || "Đổi mật khẩu thất bại, vui lòng thử lại");

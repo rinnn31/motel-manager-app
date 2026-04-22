@@ -1,14 +1,26 @@
 import { createSlice } from "@reduxjs/toolkit";
 import { UserInfo } from "../../types/accountTypes";
-import { login, register } from "../auth/authSlice";
+import createAppThunk from "../createAppThunk";
+import accountService from "../../services/accountService";
 
 interface AccountState {
     user: UserInfo | null;
+    loading: boolean;
+    error: boolean
 }
 
 const initialState: AccountState = {
-    user: null
+    user: null,
+    loading: false,
+    error: false,
 };
+
+export const fetchUserInfo = createAppThunk<UserInfo, void>(
+    "account/fetchUserInfo",
+    async (_, thunkAPI) => {
+        return await accountService.getUserInfo();
+    }
+)
 
 const accountSlice = createSlice({
     name: "account",
@@ -26,13 +38,18 @@ const accountSlice = createSlice({
     },
     extraReducers: (builder) => {
         builder
-            // Add case for login success, its result contains user info, so we can set it to state
-            .addCase(login.fulfilled, (state, action) => {
-                state.user = action.payload.userInfo;
+            .addCase(fetchUserInfo.pending, (state) => {
+                state.loading = true;
+                state.error = false;
             })
-            .addCase(register.fulfilled, (state, action) => {
-                state.user = action.payload.userInfo;
+            .addCase(fetchUserInfo.fulfilled, (state, action) => {
+                state.user = action.payload;
+                state.loading = false;
             })
+            .addCase(fetchUserInfo.rejected, (state, action) => {
+                state.error = true;
+                state.loading = false;
+            });
     }
 });
 
