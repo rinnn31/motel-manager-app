@@ -1,22 +1,22 @@
 import apiClient from "./apiClient";
 
 const notificationService: NotificationService = {
-    getNotifications: async (page: number, size: number) => {
+    async getNotifications(page: number, size: number) {
         const response = await apiClient.get("/notifications", {
             params: { page, size }
         });
         return response.data.data;
     },
-    markAsRead: async (notificationId: string) => {
+    async markAsRead(notificationId: string) {
         await apiClient.post(`/notifications/${notificationId}/read`);
     },
-    markAllAsRead: async () => {
+    async markAllAsRead() {
         await apiClient.post("/notifications/read");
     },
-    deleteNotification: async (notificationId: string) => {
+    async deleteNotification(notificationId: string) {
         await apiClient.delete(`/notifications/${notificationId}`);
     },
-    deleteAllNotifications: async () => {
+    async deleteAllNotifications() {
         await apiClient.delete("/notifications");
     }
 }

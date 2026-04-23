@@ -1,5 +1,3 @@
-import { UserInfo } from "./accountTypes";
-
 interface TokenData {
     refreshToken: string,
     accessToken: string
@@ -9,7 +7,6 @@ interface AuthenticationData {
     refreshToken: string,
     accessToken: string,
     userId: string
-    userInfo: UserInfo
 }
 
 interface RegisterRequest {
