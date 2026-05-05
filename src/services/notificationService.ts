@@ -11,7 +11,7 @@ const notificationService: NotificationService = {
         await apiClient.post(`/notifications/${notificationId}/read`);
     },
     async markAllAsRead() {
-        await apiClient.post("/notifications/read");
+        await apiClient.patch("/notifications/read");
     },
     async deleteNotification(notificationId: string) {
         await apiClient.delete(`/notifications/${notificationId}`);

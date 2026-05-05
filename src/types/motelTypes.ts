@@ -8,7 +8,7 @@ interface MotelInfo {
 }
 
 interface MemberInfo {
-    userInfo: UserInfo
+    user: UserInfo
     roomNumber: string;
     joinDate: string;
 }
@@ -22,8 +22,7 @@ interface RoomInfo {
 
 interface FeeInfo {
     id: string,
-    type: string,
-    description: string,
+    name: string,
     calculationType: string,
     unitPrice: number,
 }
@@ -58,7 +57,10 @@ interface MessageInfo {
         name: string,
         type: string
     }[],
-    attachments?: string[]
+    attachments?: {
+        key: string,
+        type: string
+    }[]
 }
 
 /* Motel API related service types */
@@ -74,12 +76,13 @@ interface MotelService {
 
 interface FeeService {
     getAllFees(motelId: string) : Promise<FeeInfo[]>,
-    addFee(motelId: string, data: {feeType: string, unitPrice: number, calculationType: string, description?: string }) : Promise<void>,
+    addFee(motelId: string, data: {name: string, unitPrice: number, calculationType: string }) : Promise<void>,
     updateFee(feeId: string, data: {unitPrice?: number, calculationType?: string}) : Promise<void>,
     deleteFee(feeId: string) : Promise<void>
 }
 
 interface MemberService {
+    addMember(roomId: string, phoneNumber: string) : Promise<void>,
     getMembersByMotelId(motelId: string) : Promise<MemberInfo[]>,
     getMembersByRoomId(roomId: string) : Promise<MemberInfo[]>,
     removeMember(userId: string) : Promise<void>,
@@ -90,26 +93,28 @@ interface RoomService {
     getRooms(motelId: string) : Promise<RoomInfo[]>,
     getRoomById(roomId: string) : Promise<RoomInfo>,
     getJoinedRoom(): Promise<RoomInfo>,
-    createRoom(data: {roomNumber: string, roomPrice: number}) : Promise<void>,
+    createRoom(motelId: string, data: {roomNumber: string, price: number}) : Promise<void>,
     deleteRoom(roomId: string) : Promise<void>,
-    updateRoom(roomId: string, data: {roomNumber?: string, roomPrice?: number}) : Promise<void>,
+    updateRoom(roomId: string, data: {roomNumber?: string, price?: number}) : Promise<void>,
 }
 
 interface MessageService {
-    getSentMessagesForMotel(motelId: string, from: number, page: number, size: number) : Promise<MessageInfo[]>,
-    getReceivedMessagesForMotel(motelId: string, from: number, page: number, size: number) : Promise<MessageInfo[]>,
-    getSentMessagesForRoom(roomId: string, from: number, page: number, size: number) : Promise<MessageInfo[]>,
-    getReceivedMessagesForRoom(roomId: string, from: number, page: number, size: number) : Promise<MessageInfo[]>,
-    sendMessageToMotel(motelId: string, roomId: string, data: {
+    getMessageById(messageId: string) : Promise<MessageInfo>,
+    getSentMessagesForMotel(motelId: string, from: string, to: string, page: number, size: number) : Promise<MessageInfo[]>,
+    getReceivedMessagesForMotel(motelId: string, from: string, to: string, page: number, size: number) : Promise<MessageInfo[]>,
+    getSentMessagesForRoom(roomId: string, from: string, to: string, page: number, size: number) : Promise<MessageInfo[]>,
+    getReceivedMessagesForRoom(roomId: string, from: string, to: string, page: number, size: number) : Promise<MessageInfo[]>,
+    sendMessageToMotel(data: {
         title: string,
         content: string,
         attachments?: {path: string, type: string}[]
     }): Promise<void>,
-    sendMessageToRoom(motelId: string, roomIds: string[], data: {
+    sendMessageToRoom(roomIds: string[], data: {
         title: string,
         content: string,
         attachments?: {path: string, type: string}[]
     }): Promise<void>
+
 }
 
 interface InvoiceService {

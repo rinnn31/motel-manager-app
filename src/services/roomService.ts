@@ -14,14 +14,17 @@ const roomService: RoomService = {
         const response = await apiClient.get("/rooms/joined");
         return response.data.data;
     },
-    async createRoom(data: { roomNumber: string; roomPrice: number }) {
-        await apiClient.post("/rooms", data);
+    async createRoom(motelId: string, data: { roomNumber: string; price: number }) {
+        await apiClient.post("/rooms", {
+            motelId,
+            ...data
+        });
     },
     async deleteRoom(roomId: string) {
         await apiClient.delete(`/rooms/${roomId}`);
 
     },
-    async updateRoom(roomId: string, data: { roomNumber?: string; roomPrice?: number }) {
+    async updateRoom(roomId: string, data: { roomNumber?: string; price?: number }) {
         await apiClient.patch(`/rooms/${roomId}`, data);
     }
 }

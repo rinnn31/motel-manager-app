@@ -1,5 +1,5 @@
 import React from "react";
-import { View, Text, Alert, ScrollView, Pressable, Image, Platform } from "react-native";
+import { View, Text, Alert, ScrollView, Pressable, Image, Platform, Modal } from "react-native";
 import ImagePicker, { ImageOrVideo } from "react-native-image-crop-picker";
 import FontAwesome from "react-native-vector-icons/FontAwesome6";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
@@ -14,7 +14,7 @@ import ChooseItemModal from "../../components/common/ChooseItemModal";
 import { resolveMedia } from "../../utils/serverMediaResolver";
 import accountService from "../../services/accountService";
 import { updateProfile } from "../../store/account/accountSlice";
-import AppHeader from "../../components/common/AppHeader";
+import Header from "../../components/common/Header";
 import { hidePhoneNumber } from "../../utils/formats";
 
 export default function AccountSettingsScreen({ navigation }) {
@@ -25,7 +25,8 @@ export default function AccountSettingsScreen({ navigation }) {
     const genderLabel = user?.gender === 0 ? "Nam" : user?.gender === 1 ? "Nữ" : "Khác";
 
     /* AVATAR PICKER */
-    const [isAvatarPickerVisible, setAvatarPickerVisible] = React.useState(false);
+    const [avatarViewerVisible, setAvatarViewerVisible] = React.useState(false);
+    const [avatarPickerVisible, setAvatarPickerVisible] = React.useState(false);
     const items = [
         { key: "camera", label: "Chụp ảnh mới", iconName: "camera-alt" },
         { key: "gallery", label: "Chọn từ thư viện", iconName: "photo-library" },
@@ -98,7 +99,16 @@ export default function AccountSettingsScreen({ navigation }) {
                 {
                     text: "Xoá vĩnh viễn",
                     style: "destructive",
-                    onPress: () => console.log("delete request"),
+                    onPress: async() => {
+                        try {
+                            await accountService.deleteAccount();
+                            dispatch(logout({ refreshToken: authData.refreshToken! }));
+                        } catch (err) {
+                            console.error("Failed to delete account: ", err);
+                            Alert.alert("Lỗi", "Không thể xoá tài khoản. Vui lòng thử lại.");
+                            return;
+                        }
+                    }
                 },
             ]
         );
@@ -106,7 +116,7 @@ export default function AccountSettingsScreen({ navigation }) {
 
     return (
         <View className="flex-1 bg-gray-100">
-            <AppHeader title="Cài đặt tài khoản" />
+            <Header title="Cài đặt tài khoản" />
 
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
@@ -114,7 +124,9 @@ export default function AccountSettingsScreen({ navigation }) {
                 <View className="items-center mb-8 mt-4">
                     <Pressable
                         onPress={() => setAvatarPickerVisible(true)}
-                        className="w-24 h-24 bg-white items-center justify-center border border-gray-200 active:opacity-80 rounded"
+                        onLongPress={() => setAvatarViewerVisible(true)}
+                        delayLongPress={1000}
+                        className="w-24 h-24 rounded-full bg-white items-center justify-center border border-gray-200 active:opacity-80 overflow-hidden"
                     >
                         {user?.avatarUrl ? (
                             <Image
@@ -127,11 +139,6 @@ export default function AccountSettingsScreen({ navigation }) {
                         ) : (
                             <FontAwesome name="user" size={40} color="#4F46E5" />
                         )}
-
-                        {/* Edit Overlay Label */}
-                        <View className="absolute bottom-0 w-full bg-black/40 py-1">
-                            <Text className="text-[10px] text-white text-center font-bold">SỬA</Text>
-                        </View>
                     </Pressable>
 
                     <Text className="text-xl font-bold text-gray-900 mt-4">
@@ -188,14 +195,14 @@ export default function AccountSettingsScreen({ navigation }) {
                         materialIconName="logout"
                         onPress={handleLogout}
                     />
-
+{/* 
                     <SettingEntryItem
                         label="Xoá tài khoản"
                         materialIconName="delete-outline"
                         onPress={handleDeleteAccount}
                         materialIconColor="#EF4444"
                         labelColor="#EF4444"
-                    />
+                    /> */}
                 </View>
 
                 <Text className="text-[10px] text-gray-400 text-center mt-8 uppercase tracking-widest">
@@ -204,12 +211,34 @@ export default function AccountSettingsScreen({ navigation }) {
 
             </ScrollView>
             <ChooseItemModal
-                visible={isAvatarPickerVisible}
+                visible={avatarPickerVisible}
                 title="Cập nhật ảnh đại diện"
                 actions={items}
                 onItemSelected={handleAvatarPicker}
                 onClose={() => setAvatarPickerVisible(false)}
             />
+
+            <Modal visible={avatarViewerVisible} transparent={true} animationType="fade" onRequestClose={()=>setAvatarViewerVisible(false)}>
+                <View className="flex-1 bg-black justify-center items-center">
+
+                    {/* Close Button */}
+                    <Pressable
+                        onPress={() => setAvatarViewerVisible(false)}
+                        className="absolute top-12 right-6 z-50 w-12 h-12 bg-white/10 rounded-full items-center justify-center"
+                    >
+                        <MaterialIcons name="close" size={30} color="white" />
+                    </Pressable>
+
+                    {/* Media Content */}
+                    <View className="w-full h-3/4 justify-center items-center">
+                        <Image
+                            source={{ uri: resolveMedia(user?.avatarUrl!) }}
+                            className="w-full h-full"
+                            resizeMode="contain"
+                        />
+                    </View>
+                </View>
+            </Modal>
 
         </View>
     );

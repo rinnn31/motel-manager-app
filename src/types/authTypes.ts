@@ -9,39 +9,28 @@ interface AuthenticationData {
     userId: string
 }
 
-interface RegisterRequest {
-    phoneNumber: string,
-    password: string,
-    fullName: string,
-    gender: number,
-    role: number
-}
-
-interface LoginRequest {
-    phoneNumber: string,
-    password: string
-}
-
-interface ResetPasswordRequest {
-    phoneNumber: string,
-    code: string,
-    newPassword?: string
-}
-
 interface AuthService {
-    login(data: LoginRequest) : Promise<AuthenticationData>,
+    login(data: { phoneNumber: string, password: string }) : Promise<AuthenticationData>,
     logout(refreshToken: string) : Promise<void>,
-    register(data: RegisterRequest) : Promise<AuthenticationData>,
+    register(data: { 
+        phoneNumber: string,
+        password: string,
+        fullName: string,
+        gender: number,
+        role: number
+    }) : Promise<AuthenticationData>,
     sendResetPasswordOtp(phoneNumber: string) : Promise<void>,
-    resetPassword(data: ResetPasswordRequest) : Promise<void>,
+    resetPassword(data: {
+        phoneNumber: string,
+        code: string,
+        newPassword: string
+    }) : Promise<void>,
     refreshToken(refreshToken: string) : Promise<TokenData>,
+    registerDeviceToken(data: {sessionToken: string, deviceToken: string}) : Promise<void>
 }
 
 export type { 
     TokenData, 
     AuthenticationData, 
     AuthService,
-    RegisterRequest,
-    LoginRequest,
-    ResetPasswordRequest
 }

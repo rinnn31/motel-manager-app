@@ -19,7 +19,7 @@ const invoiceService: InvoiceService = {
         await apiClient.delete(`/invoices/${invoiceId}`);
     },
     async payInvoice(invoiceId: string) {
-        await apiClient.post(`/invoices/${invoiceId}/pay`);
+        await apiClient.patch(`/invoices/${invoiceId}/pay`);
     }
 }
 

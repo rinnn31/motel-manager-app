@@ -1,15 +1,18 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import AccountSettingsStack from "./AccountSettingsStack";
-import MotelStack from "./MotelStack";
+import LandlordMotelStack from "./LandlordMotelStack";
 import MaterialIcons from "react-native-vector-icons/MaterialIcons";
-import { Platform, View } from "react-native";
+import { Platform } from "react-native";
 import { getFocusedRouteNameFromRoute } from "@react-navigation/native";
 import NotificationScreen from "../screens/notification/NotificationScreen";
-
+import { useAppSelector } from "../store/hooks";
+import { selectUser } from "../store/account/accountSelectors";
+import TenantMotelStack from "./TenantMotelStack";
 const Tab = createBottomTabNavigator();
 
 
 export default function AppTab() {
+    const user = useAppSelector(selectUser);
     return (
         <Tab.Navigator
             screenOptions={({ route }) => {
@@ -32,6 +35,7 @@ export default function AppTab() {
                     },
                     tabBarActiveTintColor: "#4F46E5",
                     tabBarInactiveTintColor: "#9CA3AF",
+                    tabBarHideOnKeyboard: true,
                     headerShown: false,
 
                     tabBarStyle: {
@@ -51,7 +55,7 @@ export default function AppTab() {
                 };
             }}
         >
-            <Tab.Screen name="Motel" component={MotelStack} options={{tabBarLabel: "Nhà trọ"}}/>
+            <Tab.Screen name="Motel" component={user?.role === "TENANT" ? TenantMotelStack : LandlordMotelStack} options={{tabBarLabel: "Nhà trọ"}}/>
             <Tab.Screen name="Notifications" component={NotificationScreen} options={{tabBarLabel: "Thông báo"}} />
             <Tab.Screen name="Account" component={AccountSettingsStack} options={{tabBarLabel: "Tài khoản"}} />
         </Tab.Navigator>

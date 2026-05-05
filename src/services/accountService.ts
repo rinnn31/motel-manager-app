@@ -1,44 +1,49 @@
 import apiClient from "./apiClient";
-import { AccountService, ChangePasswordRequest, UpdateProfileRequest, VerifyContactPointRequest } from "../types/accountTypes";
-import RNFS from 'react-native-fs';
+import { AccountService } from "../types/accountTypes";
 
 const accountService: AccountService = {
     getUserInfo: async () => {
         const response = await apiClient.get("/account/me");
+        console.log("Fetched user info: ", response.data.data);
         return response.data.data;
     },
     getUserInfoById: async (userId: string) => {
         const response = await apiClient.get(`/account/${userId}`);
         return response.data.data;
     },
-    changeContactpoint: async (newPhoneNumber: string) => {
-        await apiClient.patch("/account/me/change-contactpoint", null, {
-            params : {
-                newPhoneNumber: newPhoneNumber
-            }
+    changeContactpoint: async (phoneNumber: string) => {
+        await apiClient.patch("/account/me/contactpoint", {
+            phoneNumber: phoneNumber
         });
     },
-    changePassword: async (data: ChangePasswordRequest) => {
-        await apiClient.patch("/account/me/change-password", data);
+    changePassword: async (data: {
+        oldPassword: string,
+        newPassword: string
+    }) => {
+        await apiClient.patch("/account/me/password", data);
     },
     deleteAccount: async () => {
-        await apiClient.delete("/account/me/delete");
+        await apiClient.delete("/account/me");
     },
-    updateProfile: async (data: UpdateProfileRequest) => {
-        await apiClient.patch("/account/me/update-profile", data);
+    updateProfile: async (data: {
+        fullName: string,
+        gender: number
+    }) => {
+        await apiClient.patch("/account/me", data);
     },
-    verifyContactPoint: async (data: VerifyContactPointRequest) => {
-        await apiClient.post("/account/me/verify-contactpoint", data);
+    verifyContactPoint: async (data: {
+        phoneNumber: string,
+        otp: string
+    }) => {
+        await apiClient.post("/account/me/contactpoint/verify", data);
     },
     sendContactPointVerificationCode: async (phoneNumber: string) => {
-        await apiClient.post("/account/me/send-contactpoint-otp", null, {
-            params: {
-                phoneNumber: phoneNumber
-            }
+        await apiClient.post("/account/me/contactpoint/otp", {
+            phoneNumber: phoneNumber
         });
     },
     uploadAvatar: async (fileUri: string, imageType:string) => {
-        const response = await apiClient.get("/account/me/avatar-upload-url", {
+        const response = await apiClient.post("/account/me/avatar/upload-url", {
             params: {
                 imageType: imageType
             }
@@ -57,7 +62,7 @@ const accountService: AccountService = {
             }
         });
 
-        await apiClient.patch("/account/me/update-avatar", null, {
+        await apiClient.patch("/account/me/avatar", null, {
             params: {
                 avatarKey: key
             }

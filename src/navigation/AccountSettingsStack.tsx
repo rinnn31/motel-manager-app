@@ -12,7 +12,7 @@ export default function AccountSettingsStack() {
     return (
         <Stack.Navigator
             screenOptions={{
-                headerShown: false
+                headerShown: false,
             }}>
             <Stack.Screen name="AccountSettings" component={AccountSettingsScreen} />
             <Stack.Screen name="EditName" component={EditNameScreen} />

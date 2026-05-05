@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "213806959400",
+    "project_id": "motel-manager-81063",
+    "storage_bucket": "motel-manager-81063.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:213806959400:android:acd4402b3f3c53aa835e1d",
+        "android_client_info": {
+          "package_name": "com.motelmanager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXfxhJKkObY0L1VkpwDx1U586yMzGlBzE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

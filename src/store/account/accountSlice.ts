@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { UserInfo } from "../../types/accountTypes";
 import createAppThunk from "../createAppThunk";
 import accountService from "../../services/accountService";
+import { logout } from "../auth/authSlice";
 
 interface AccountState {
     user: UserInfo | null;
@@ -21,6 +22,13 @@ export const fetchUserInfo = createAppThunk<UserInfo, void>(
         return await accountService.getUserInfo();
     }
 )
+
+export const deleteAccount = createAppThunk<void, void>(
+    "account/deleteAccount",
+    async (_, thunkAPI) => {
+        await accountService.deleteAccount();
+    }
+);
 
 const accountSlice = createSlice({
     name: "account",
@@ -49,7 +57,14 @@ const accountSlice = createSlice({
             .addCase(fetchUserInfo.rejected, (state, action) => {
                 state.error = true;
                 state.loading = false;
-            });
+            })
+            .addCase(logout.fulfilled, (state) => {
+                state.user = null;
+            })
+            .addCase(deleteAccount.fulfilled, (state, action) => {
+                state.user = null;
+            })
+            
     }
 });
 

@@ -6,8 +6,10 @@ const feeService: FeeService = {
         const response = await apiClient.get("/fees", { params: { motelId: motelId } });
         return response.data.data;
     },
-    async addFee(motelId: string, data: { feeType: string; unitPrice: number; calculationType: string; description?: string }) {
-        await apiClient.post("/fees", { ...data, motelId: motelId });
+    async addFee(motelId: string, data: { name:string, unitPrice: number; calculationType: string }) {
+        await apiClient.post("/fees", data, {
+            params: { motelId: motelId }
+        });
     },
     async updateFee(feeId: string, data: { unitPrice?: number; calculationType?: string }) {
         await apiClient.patch(`/fees/${feeId}`, data);

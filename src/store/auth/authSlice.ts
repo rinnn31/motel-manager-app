@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { LoginRequest, RegisterRequest, ResetPasswordRequest } from "../../types/authTypes";
 import authService from "../../services/authService";
 import createAppThunk from "../createAppThunk";
 import storageService from "../../services/storageService";
@@ -21,14 +20,20 @@ const initialState: AuthState = {
 
 export const login = createAppThunk(
     'auth/login',
-    async (payload: LoginRequest) => {
+    async (payload: {phoneNumber: string, password: string}) => {
         return await authService.login(payload);
     }
 );
 
 export const register = createAppThunk(
     'auth/register',
-    async (payload: RegisterRequest) => {
+    async (payload: {
+        phoneNumber: string,
+        password: string,
+        fullName: string,
+        gender: number,
+        role: number
+    }) => {
         return await authService.register(payload);
     }
 );

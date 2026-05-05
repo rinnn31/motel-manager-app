@@ -8,37 +8,19 @@ interface UserInfo {
     avatarUrl?: string
 }
 
-interface ChangePasswordRequest {
-    oldPassword: string,
-    newPassword: string
-}
-
-interface UpdateProfileRequest {
-    fullName?: string,
-    gender?: number
-}
-
-interface VerifyContactPointRequest {
-    phoneNumber: string,
-    otp: string
-}
-
 interface AccountService {
     getUserInfo() : Promise<UserInfo>,
     getUserInfoById(userId: string) : Promise<UserInfo>,
     changeContactpoint(newPhoneNumber: string) : Promise<void>,
-    changePassword(data: ChangePasswordRequest) : Promise<void>,
+    changePassword(data: {oldPassword: string, newPassword: string}) : Promise<void>,
     deleteAccount() : Promise<void>,
-    updateProfile(data: UpdateProfileRequest) : Promise<void>,
-    verifyContactPoint(data: VerifyContactPointRequest) : Promise<void>,
+    updateProfile(data: {fullName: string, gender: number}) : Promise<void>,
+    verifyContactPoint(data: {phoneNumber: string, otp: string}) : Promise<void>,
     sendContactPointVerificationCode(phoneNumber: string) : Promise<void>,
     uploadAvatar(fileUri, imageType) : Promise<string>
 }
 
 export type { 
     UserInfo, 
-    AccountService,
-    ChangePasswordRequest,
-    UpdateProfileRequest,
-    VerifyContactPointRequest
+    AccountService
 }
