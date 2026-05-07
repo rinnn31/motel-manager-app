@@ -141,7 +141,7 @@ export default function RoomManagementScreen({ route, navigation }) {
                                 className="p-4 items-center justify-center active:bg-rose-50"
                             >
                                 <View className="bg-rose-50 p-2 rounded-full">
-                                    <FontAwesome6 name="trash-can" size={20} color="#f43f5e" />
+                                    <FontAwesome6 name="trash" size={20} color="#f43f5e" />
                                 </View>
                             </Pressable>
                         </View>

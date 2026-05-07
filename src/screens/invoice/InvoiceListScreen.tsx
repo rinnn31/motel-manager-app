@@ -80,8 +80,8 @@ export default function InvoiceListView({ route, navigation }: any) {
 
                     {/* BÊN PHẢI: TRẠNG THÁI */}
                     <View className={`px-2.5 py-1 rounded-lg ${item.isPaid ? 'bg-emerald-50' : 'bg-amber-50'}`}>
-                        <Text className={`text-[10px] font-black uppercase ${item.isPaid ? 'text-emerald-600' : 'text-amber-600'}`}>
-                            {item.isPaid ? 'Đã thu' : 'Chờ thu'}
+                        <Text className={`text-[10px] font-black uppercase ${item.paymentStatus === 'UNPAID' ? 'text-amber-600' : item.paymentStatus === 'PAYER_CONFIRMED' ? 'text-blue-600' : 'text-emerald-600'}`}>
+                            {item.paymentStatus === 'UNPAID' ? 'Chưa thanh toán' : item.paymentStatus === 'PAYER_CONFIRMED' ? 'Đang xử lý' : 'Đã thanh toán'}
                         </Text>
                     </View>
                 </View>

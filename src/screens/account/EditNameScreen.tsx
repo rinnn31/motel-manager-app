@@ -49,6 +49,14 @@ export default function EditNameScreen({ navigation }) {
             <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
                 <View className="flex-1 p-6">
                     {/* Header/Title Section */}
+                    <View className="mb-6 -ml-2">
+                        <Pressable
+                            onPress={() => navigation.goBack()}
+                            className="w-10 h-10 items-center justify-center rounded-full active:bg-gray-100"
+                        >
+                            <MaterialIcons name="arrow-back-ios" size={24} color="#1F2937" style={{ marginLeft: 8 }} />
+                        </Pressable>
+                    </View>
                     <View className="mb-8">
                         <Text className="text-2xl font-bold text-gray-800">Cập nhật họ tên</Text>
                         <Text className="text-gray-500 mt-2">Họ tên này sẽ hiển thị trên hồ sơ cá nhân của bạn.</Text>
@@ -83,7 +91,7 @@ export default function EditNameScreen({ navigation }) {
                         className={`mb-4 h-14 rounded-2xl items-center justify-center ${loading ? 'bg-indigo-300' : 'bg-indigo-600'} active:bg-indigo-700`}
                     >
                         <Text className="text-white text-lg font-bold">
-                            {loading ? 
+                            {loading ?
                                 <ActivityIndicator size="small" color="#FFFFFF" />
                                 : "Lưu"
                             }

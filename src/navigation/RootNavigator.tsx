@@ -1,16 +1,19 @@
-import { NavigationContainer } from "@react-navigation/native";
+import { createNavigationContainerRef, NavigationContainer } from "@react-navigation/native";
 import AuthStack from "./AuthStack";
 import { selectAuthData, selectIsLoggedIn } from "../store/auth/authSelectors";
 import { useAppDispatch, useAppSelector } from "../store/hooks";
 import { selectAccountError, selectIsAccountLoading, selectIsAccountVerified, selectUser } from "../store/account/accountSelectors";
 import AppTab from "./AppTab";
 import VerificationStack from "./VerificationStack";
-import { useEffect, useRef } from "react";
+import { use, useEffect, useRef } from "react";
 import { fetchUserInfo } from "../store/account/accountSlice";
-import { ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, Alert, View } from "react-native";
 import ErrorLayout from "../components/common/ErrorLayout";
 import messaging from "@react-native-firebase/messaging";
 import authService from "../services/authService";
+import { handleNotification } from "../utils/notificationHandler";
+
+export const navigationRef = createNavigationContainerRef();
 
 export default function RootNavigator() {
     const dispatch = useAppDispatch();
@@ -22,6 +25,50 @@ export default function RootNavigator() {
     const hasLoadingAccountError = useAppSelector(selectAccountError);
 
     const fcmTokenRef = useRef<string | null>(null);
+    const pendingNotificationRef = useRef<any>(null);
+
+    const handleNotificationClick = async (remoteMessage: any) => {
+        if (!remoteMessage || !remoteMessage.data) return;
+        try {
+            const type = pendingNotificationRef.current.data?.type;
+            const payload = JSON.parse(pendingNotificationRef.current.data?.payload || "{}");
+
+            if (await handleNotification(type, payload)) pendingNotificationRef.current = null;
+        } catch (error) {
+            console.error("Error handling notification click:", error);
+        }
+    };
+
+    useEffect(() => {
+        const unsubscribe = messaging().onNotificationOpenedApp((remoteMessage) => {
+            if (isAuthenticated && userData?.isVerified) {
+                handleNotificationClick(remoteMessage);
+            } else {
+                pendingNotificationRef.current = remoteMessage;
+            }
+        })
+        messaging().getInitialNotification().then(remoteMessage => {
+            if (remoteMessage) {
+                if (isAuthenticated && userData?.isVerified) {
+                    handleNotificationClick(remoteMessage);
+                } else {
+                    pendingNotificationRef.current = remoteMessage;
+                }
+            }
+        });
+
+        return unsubscribe;
+    }, [isAuthenticated, userData?.isVerified]);
+
+    useEffect(() => {
+        if (isAuthenticated && userData?.isVerified && pendingNotificationRef.current) {
+            const timer = setTimeout(() => {
+                handleNotificationClick(pendingNotificationRef.current);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+
+    }, [isAuthenticated, userData?.isVerified]);
 
     useEffect(() => {
         if (isAuthenticated && !userData) {
@@ -51,7 +98,7 @@ export default function RootNavigator() {
 
     useEffect(() => {
         const unsubscribe = messaging().onTokenRefresh(async (token) => {
-            if (userData && token && token !== fcmTokenRef.current) {
+            if (authData && token && token !== fcmTokenRef.current) {
                 fcmTokenRef.current = token;
                 try {
                     await authService.registerDeviceToken({
@@ -67,7 +114,7 @@ export default function RootNavigator() {
         return () => {
             unsubscribe();
         }   
-    }, [authData, userData]);
+    }, [authData]);
 
     useEffect(() => {
         if (!isAuthenticated) {
@@ -106,7 +153,7 @@ export default function RootNavigator() {
     }
     
     return (
-        <NavigationContainer>
+        <NavigationContainer ref={navigationRef}> 
             {content}
         </NavigationContainer>
     );

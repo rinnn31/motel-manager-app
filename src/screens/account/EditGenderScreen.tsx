@@ -30,7 +30,7 @@ export default function EditGenderScreen({ navigation }) {
     const handleSave = async () => {
         setLoading(true);
         try {
-            await accountService.updateProfile({ gender: selectedGender });
+            await accountService.updateProfile({ gender: selectedGender});
             dispatch(updateProfile({ gender: selectedGender }));
             navigation.goBack();
         } catch (e: any) {

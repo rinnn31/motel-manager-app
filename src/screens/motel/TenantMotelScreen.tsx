@@ -46,6 +46,8 @@ export default function TenantMotelScreen({ navigation }: any) {
 
                 setRoom(roomRes);
                 setOwnerInfo(ownerRes);
+            } else {
+                navigation.replace("InvitationManagement");
             }
         } catch (err) {
             console.error("Failed to fetch tenant motel info: ", err);
@@ -93,10 +95,7 @@ export default function TenantMotelScreen({ navigation }: any) {
                 text: "Rời đi", style: "destructive", onPress: async () => {
                     try {
                         await memberService.leaveMotel();
-                        navigation.reset({
-                            index: 0,
-                            routes: [{ name: "TenantMotelInfo" }],
-                        });
+                        navigation.replace("InvitationManagement");
                     } catch (err) {
                         console.error("Failed to leave motel: ", err);
                         Alert.alert("Lỗi", "Không thể rời nhà trọ. Vui lòng thử lại.");

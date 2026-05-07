@@ -27,6 +27,7 @@ export default function MessageManagementScreen({ route, navigation }) {
     const [page, setPage] = useState(0); // messageService thường dùng offset hoặc page bắt đầu từ 0
     const [loadingMore, setLoadingMore] = useState(false);
     const [isEnd, setIsEnd] = useState(false);
+    const [error, setError] = useState(false);
     const isInitialMount = useRef(true);
 
 
@@ -38,6 +39,7 @@ export default function MessageManagementScreen({ route, navigation }) {
 
     // Hàm gọi API
     const fetchMessagesData = async (pageToFetch: number, isRefresh: boolean) => {
+        setError(false);
         try {
             let data: MessageInfo[] = [];
             const fromStr = formatDateISO(fromDate);
@@ -64,6 +66,7 @@ export default function MessageManagementScreen({ route, navigation }) {
             }
         } catch (err) {
             console.error("Failed to fetch messages: ", err);
+            setError(true);
         }
     };
 
@@ -84,7 +87,7 @@ export default function MessageManagementScreen({ route, navigation }) {
     }, [activeTab, fromDate, toDate]);
 
     const loadMore = async () => {
-        if (loadingMore || isEnd || refreshing || isInitialMount.current) return;
+        if (loadingMore || isEnd || refreshing || isInitialMount.current || error) return;
         setLoadingMore(true);
         await fetchMessagesData(page, false);
         setLoadingMore(false);

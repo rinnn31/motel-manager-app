@@ -232,7 +232,7 @@ export default function CreateInvoiceScreen({ route, navigation }: any) {
                                                                 onPress={() => !item.isSystem && updateItem(index, 'calculationType', type.value)}
                                                                 disabled={item.isSystem}
                                                                 className={`flex-1 flex-row items-center justify-center py-2 rounded-lg 
-                                ${isCurrentType ? 'bg-white shadow-sm' : ''} 
+                                ${isCurrentType ? 'bg-white' : ''} 
                                 ${item.isSystem && !isCurrentType ? 'opacity-40' : ''}`} // Làm mờ các lựa chọn không được chọn nếu bị khóa
                                                             >
                                                                 <Text className={`text-[11px] font-bold ${isCurrentType ? 'text-indigo-600' : 'text-slate-500'}`}>

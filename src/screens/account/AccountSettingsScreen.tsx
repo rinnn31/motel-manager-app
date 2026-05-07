@@ -2,7 +2,6 @@ import React from "react";
 import { View, Text, Alert, ScrollView, Pressable, Image, Platform, Modal } from "react-native";
 import ImagePicker, { ImageOrVideo } from "react-native-image-crop-picker";
 import FontAwesome from "react-native-vector-icons/FontAwesome6";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
 import LabelValueSettingItem from "../../components/modules/account/LabelValueSettingItem";
 import SettingEntryItem from "../../components/modules/account/SettingEntryItem";
 import { selectUser } from "../../store/account/accountSelectors";
@@ -116,7 +115,11 @@ export default function AccountSettingsScreen({ navigation }) {
 
     return (
         <View className="flex-1 bg-gray-100">
-            <Header title="Cài đặt tài khoản" />
+            <Header 
+                title="Cài đặt tài khoản" 
+                iconName="user-shield"
+                iconColor="#4F46E5"
+            />
 
             <ScrollView contentContainerStyle={{ padding: 16, paddingBottom: 40 }}>
 
@@ -128,17 +131,13 @@ export default function AccountSettingsScreen({ navigation }) {
                         delayLongPress={1000}
                         className="w-24 h-24 rounded-full bg-white items-center justify-center border border-gray-200 active:opacity-80 overflow-hidden"
                     >
-                        {user?.avatarUrl ? (
-                            <Image
-                                source={{ uri: resolveMedia(user.avatarUrl) }}
+                        <Image
+                                source={{ uri: resolveMedia(user?.avatarUrl || "https://ui-avatars.com/api/?background=0D8ABC&color=fff&" + encodeURIComponent(user?.fullName || "User")) }}
                                 style={{ width: '100%', height: '100%' }} // Dùng style trực tiếp cho chắc chắn
                                 resizeMode="cover"
                                 onLoadStart={() => console.log("Bắt đầu tải:", resolveMedia(user?.avatarUrl!))}
                                 onError={(e) => console.log("Lỗi tải ảnh:", e.nativeEvent.error)}
                             />
-                        ) : (
-                            <FontAwesome name="user" size={40} color="#4F46E5" />
-                        )}
                     </Pressable>
 
                     <Text className="text-xl font-bold text-gray-900 mt-4">
@@ -178,10 +177,10 @@ export default function AccountSettingsScreen({ navigation }) {
                         className="flex-row items-center justify-between px-4 py-4 active:bg-gray-50 border-b border-gray-50"
                     >
                         <View className="flex-row items-center">
-                            <MaterialIcons name="password" size={22} color="#4B5563" />
+                            <FontAwesome name="lock" size={15} color="#4B5563" />
                             <Text className="ml-3 text-gray-700 font-medium">Đổi mật khẩu</Text>
                         </View>
-                        <MaterialIcons name="chevron-right" size={24} color="#D1D5DB" />
+                        <FontAwesome name="chevron-right" size={15} color="#D1D5DB" />
                     </Pressable>
                 </View>
 
@@ -195,14 +194,6 @@ export default function AccountSettingsScreen({ navigation }) {
                         materialIconName="logout"
                         onPress={handleLogout}
                     />
-{/* 
-                    <SettingEntryItem
-                        label="Xoá tài khoản"
-                        materialIconName="delete-outline"
-                        onPress={handleDeleteAccount}
-                        materialIconColor="#EF4444"
-                        labelColor="#EF4444"
-                    /> */}
                 </View>
 
                 <Text className="text-[10px] text-gray-400 text-center mt-8 uppercase tracking-widest">
@@ -226,7 +217,7 @@ export default function AccountSettingsScreen({ navigation }) {
                         onPress={() => setAvatarViewerVisible(false)}
                         className="absolute top-12 right-6 z-50 w-12 h-12 bg-white/10 rounded-full items-center justify-center"
                     >
-                        <MaterialIcons name="close" size={30} color="white" />
+                        <FontAwesome name="xmark" size={30} color="white" />
                     </Pressable>
 
                     {/* Media Content */}

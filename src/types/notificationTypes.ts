@@ -1,8 +1,9 @@
 interface Notification {
     id: string,
     title: string,
-    referenceId?: string, // ID tham chiếu đến đối tượng liên quan (ví dụ: hóa đơn, sự kiện, v.v.)
-    type: string, // Loại thông báo (ví dụ: "payment", "system", "schedule", "warning")
+    content?: string,
+    extraData?: any,
+    type: 'MESSAGE' | 'MOTEL_INFO_CHANGED' | 'MOTEL_FEE_CHANGED' | 'MOTEL_NAME_CHANGED' | 'ROOM_INFO_CHANGED' | 'ROOM_MEMBER_CHANGED' | 'INVOICE_UPDATED' | 'INVOICE_DELETED' | 'INVITATION',
     createdAt: number, // Thời gian tạo thông báo
     isRead: boolean, // Trạng thái đã đọc hay chưa
 }

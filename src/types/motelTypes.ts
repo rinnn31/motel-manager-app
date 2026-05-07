@@ -7,6 +7,13 @@ interface MotelInfo {
     memberCount: number;
 }
 
+interface InvitationInfo {
+    inviteId: string;
+    motelName: string;
+    roomNumber: string;
+    landlordName: string;
+}
+
 interface MemberInfo {
     user: UserInfo
     roomNumber: string;
@@ -38,7 +45,7 @@ interface InvoiceInfo {
     id: string,
     createdAt: number,
     paidAt?: number,
-    isPaid: boolean,
+    paymentStatus: string,
     details: InvoiceDetail[]
 }
 
@@ -82,11 +89,14 @@ interface FeeService {
 }
 
 interface MemberService {
-    addMember(roomId: string, phoneNumber: string) : Promise<void>,
     getMembersByMotelId(motelId: string) : Promise<MemberInfo[]>,
     getMembersByRoomId(roomId: string) : Promise<MemberInfo[]>,
     removeMember(userId: string) : Promise<void>,
     leaveMotel() : Promise<void>,
+    acceptInvitation(inviteId: string) : Promise<void>,
+    rejectInvitation(inviteId: string) : Promise<void>,
+    inviteMember(roomId: string, phoneNumber: string) : Promise<void>,
+    getInvitations() : Promise<InvitationInfo[]>
 }
 
 interface RoomService {
@@ -127,6 +137,7 @@ interface InvoiceService {
 }
 
 export type {
+    InvitationInfo,
     MotelInfo,
     MemberInfo,
     RoomInfo,

@@ -76,7 +76,7 @@ export default function MemberListScreen({ route }: any) {
 
         try {
             const finalRoomId = target === 'room' ? targetId : selectedRoomId;
-            await memberService.addMember(finalRoomId, newMemberPhone);
+            await memberService.inviteMember(finalRoomId, newMemberPhone);
             
             // Reset và đóng modal
             setAddMemberModalVisible(false);
@@ -84,7 +84,7 @@ export default function MemberListScreen({ route }: any) {
             setSelectedRoomId('');
             fetchData();
         } catch (err: any) {
-            setAddMemberError(err.response?.data?.message || "Không thể thêm thành viên này");
+            setAddMemberError(err.response?.data?.message || "Không thể mời thành viên này");
         }
     };
 
@@ -108,7 +108,9 @@ export default function MemberListScreen({ route }: any) {
             <View className="w-12 h-12 rounded-full bg-slate-100 items-center justify-center mr-4 overflow-hidden">
                 {item.user.avatarUrl ? (
                     <Image 
-                        source={{ uri: resolveMedia(item.user.avatarUrl) }} 
+                        source={{ uri:  item.user.avatarUrl ? resolveMedia(item.user.avatarUrl) :
+                            "https://ui-avatars.com/api/?background=0D8ABC&color=fff&name=" + encodeURIComponent(item.user.fullName)
+                         }}
                         className="w-full h-full" 
                         resizeMode="cover"
                     />
@@ -191,7 +193,7 @@ export default function MemberListScreen({ route }: any) {
                         <View className="bg-white w-full px-6 pt-8 pb-12 rounded-t-[40px]">
                             <View className="w-12 h-1.5 bg-slate-200 rounded-full self-center mb-8" />
                             
-                            <Text className="text-2xl font-black text-slate-900 mb-2">Thêm người mới</Text>
+                            <Text className="text-2xl font-black text-slate-900 mb-2">Mời người mới</Text>
                             <Text className="text-slate-500 mb-8">Hệ thống sẽ kết nối qua số điện thoại đăng ký.</Text>
 
                             {addMemberError && (

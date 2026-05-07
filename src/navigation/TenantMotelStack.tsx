@@ -4,9 +4,10 @@ import MessageManagementScreen from "../screens/message/MessageManagementScreen"
 import MessageViewScreen from "../screens/message/MessageViewScreen";
 import AddMessageScreen from "../screens/message/AddMessageScreen";
 import FeeListScreen from "../screens/motel/FeeListScreen";
-import TenantMotelScreen from "../screens/motel/TenantMotelScreen";
 import InvoiceListView from "../screens/invoice/InvoiceListScreen";
 import InvoiceDetailScreen from "../screens/invoice/InvoiceDetail";
+import InvitationManagementScreen from "../screens/motel/InvitationManagementScreen";
+import TenantMotelScreen from "../screens/motel/TenantMotelScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -16,7 +17,8 @@ export default function TenantMotelStack({ navigation }) {
             screenOptions={{
                 headerShown: false
             }}>
-            <Stack.Screen name="TenantMotelInfo" component={TenantMotelScreen}/>
+            <Stack.Screen name="MotelInfo" component={TenantMotelScreen} />
+            <Stack.Screen name="InvitationManagement" component={InvitationManagementScreen} />
             <Stack.Screen name="MemberList" component={MemberListScreen} />
             <Stack.Screen name="FeeList" component={FeeListScreen} />
             <Stack.Screen name="MessageManagement" component={MessageManagementScreen} />

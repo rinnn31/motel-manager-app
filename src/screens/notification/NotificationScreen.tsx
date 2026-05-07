@@ -13,9 +13,10 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Swipeable from "react-native-gesture-handler/ReanimatedSwipeable";
-import MaterialIcons from "react-native-vector-icons/MaterialIcons";
+import FontAwesome from "react-native-vector-icons/FontAwesome6";
 import notificationService from "../../services/notificationService";
 import Header from "../../components/common/Header";
+import { handleNotification } from "../../utils/notificationHandler";
 
 // Enable LayoutAnimation for Android
 if (Platform.OS === "android" && UIManager.setLayoutAnimationEnabledExperimental) {
@@ -26,21 +27,23 @@ const PAGE_SIZE = 20;
 
 export default function NotificationScreen() {
     const [notifications, setNotifications] = useState<any[]>([]);
-    const [page, setPage] = useState(1);
+    const [page, setPage] = useState(0);
     const [loadingMore, setLoadingMore] = useState(false);
     const [refreshing, setRefreshing] = useState(false);
     const [isEnd, setIsEnd] = useState(false);
+    const [error, setError] = useState(false);
 
     // Ref to prevent onEndReached from firing before the initial load completes
     const isInitialMount = useRef(true);
 
     const fetchData = async (pageToFetch: number, isRefresh: boolean) => {
+        setError(false);
         try {
             const data = await notificationService.getNotifications(pageToFetch, PAGE_SIZE);
 
             if (isRefresh) {
                 setNotifications(data);
-                setPage(2);
+                setPage(1);
                 setIsEnd(data.length < PAGE_SIZE);
             } else {
                 setNotifications((prev) => [...prev, ...data]);
@@ -49,6 +52,7 @@ export default function NotificationScreen() {
             }
         } catch (error) {
             console.error("Error fetching notifications:", error);
+            setError(true);
         }
     };
 
@@ -56,7 +60,7 @@ export default function NotificationScreen() {
     useEffect(() => {
         const init = async () => {
             setRefreshing(true);
-            await fetchData(1, true);
+            await fetchData(0, true);
             setRefreshing(false);
             // Unlock loadMore once the first set of data is rendered
             isInitialMount.current = false;
@@ -67,14 +71,14 @@ export default function NotificationScreen() {
     const onRefresh = useCallback(async () => {
         if (refreshing) return;
         setRefreshing(true);
-        await fetchData(1, true);
+        await fetchData(0, true);
         setRefreshing(false);
     }, [refreshing]);
 
     const loadMore = async () => {
         // PREVENT DUPLICATION: 
         // Don't fetch if: already loading, reached end of data, currently refreshing, or initial mount
-        if (loadingMore || isEnd || refreshing || isInitialMount.current) return;
+        if (loadingMore || isEnd || refreshing || isInitialMount.current || error) return;
 
         setLoadingMore(true);
         await fetchData(page, false);
@@ -84,6 +88,7 @@ export default function NotificationScreen() {
     const deleteItem = (id: string) => {
         LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
         setNotifications((prev) => prev.filter((item) => item.id !== id));
+        notificationService.deleteNotification(id);
     };
 
     const handleReadAll = async () => {
@@ -111,30 +116,75 @@ export default function NotificationScreen() {
     const renderRightActions = (id: string) => (
         <Pressable
             onPress={() => deleteItem(id)}
-            className="bg-red-50 justify-center items-center w-20 my-2 mr-4 rounded-2xl border border-red-100"
+            className="bg-red-50 justify-center items-center w-20"
         >
-            <MaterialIcons name="delete-sweep" size={26} color="#EF4444" />
+            <FontAwesome name="trash" size={26} color="#EF4444" />
         </Pressable>
     );
 
     const renderItem = ({ item }: { item: any }) => {
-        const isPayment = item.type === "payment";
-        const isWarning = item.type === "warning";
+        let iconName;
+        let color;
+        switch (item.type) {
+            case "MOTEL_INFO_CHANGED":
+                iconName = "house-chimney-user";
+                color = "#4F46E5";
+                break;
+            case "MOTEL_FEE_CHANGED":
+                iconName = "coins";
+                color = "#059669";
+                break;
+            case "MOTEL_NAME_CHANGED":
+                iconName = "house-chimney-user";
+                color = "#4F46E5";
+                break;
+            case "ROOM_INFO_CHANGED":
+                iconName = "house-chimney-user";
+                color = "#4F46E5";
+                break;
+            case "ROOM_MEMBER_CHANGED":
+                iconName = "user-group";
+                color = "#4F46E5";
+                break;
+            case "INVOICE_UPDATED":
+                iconName = "receipt";
+                color = "#059669";
+                break;
+            case "INVOICE_DELETED":
+                iconName = "receipt";
+                color = "#D97706";
+                break;
+            case "INVITATION":
+                iconName = "paper-plane";
+                color = "#4F46E5";
+                break;
+            case "MESSAGE":
+                iconName = "comment";
+                color = "#4F46E5";
+                break;
+            default:
+                iconName = "bell";
+                color = "#4F46E5";
+        }
 
         return (
             <Swipeable renderRightActions={() => renderRightActions(item.id)}>
+                <Pressable onPress={() => {
+                    handleNotification(item.type, JSON.parse(item.extraData));
+                    notificationService.markAsRead(item.id);
+                }} >
+                
                 <View
-                    className={`mx-4 my-1.5 p-4 rounded-2xl flex-row items-start bg-white border ${item.isRead ? "border-slate-100" : "border-indigo-100 shadow-sm shadow-indigo-100/50"
-                        }`}
+                    className={`p-4 flex-row items-start ${item.isRead ? "bg-white" : "bg-indigo-50"} `}
                 >
                     <View
-                        className={`w-12 h-12 rounded-xl items-center justify-center ${isPayment ? "bg-emerald-50" : isWarning ? "bg-amber-50" : "bg-indigo-50"
+                        className={`w-12 h-12 rounded-xl items-center justify-center bg-indigo-50"
                             }`}
                     >
-                        <MaterialIcons
-                            name={isPayment ? "account-balance-wallet" : isWarning ? "security" : "notifications-none"}
-                            size={22}
-                            color={isPayment ? "#059669" : isWarning ? "#D97706" : "#4F46E5"}
+                        <FontAwesome
+                            name={iconName}
+                            size={20}
+                            color={color}
                         />
                     </View>
 
@@ -146,19 +196,19 @@ export default function NotificationScreen() {
                             >
                                 {item.title}
                             </Text>
-                            {!item.isRead && <View className="w-2 h-2 rounded-full bg-indigo-600" />}
                         </View>
 
                         <Text className="text-slate-500 text-sm mt-0.5 leading-5" numberOfLines={2}>
-                            {item.desc}
+                            {item.content}
                         </Text>
 
                         <View className="flex-row items-center mt-2">
-                            <MaterialIcons name="access-time" size={12} color="#94A3B8" />
-                            <Text className="text-[11px] text-slate-400 ml-1 font-medium">{new Date(item.createdAt).toLocaleString()}</Text>
+                            <FontAwesome name="clock" size={12} color="#94A3B8" />
+                            <Text className="text-[11px] text-slate-400 ml-1 font-medium">{new Date(item.createdAt * 1000).toLocaleString()}</Text>
                         </View>
                     </View>
                 </View>
+                </Pressable>
             </Swipeable>
         );
     };
@@ -175,7 +225,7 @@ export default function NotificationScreen() {
     const renderEmpty = () => (
         <View className="flex-1 items-center justify-center pt-20 px-10">
             <View className="bg-slate-50 p-6 rounded-full">
-                <MaterialIcons name="notifications-off" size={48} color="#CBD5E1" />
+                <FontAwesome name="bell-slash" size={48} color="#CBD5E1" />
             </View>
             <Text className="text-slate-900 font-bold text-lg mt-5">Không có thông báo</Text>
             <Text className="text-slate-500 text-center mt-2 leading-5">
@@ -191,17 +241,18 @@ export default function NotificationScreen() {
 
                 <Header
                     title="Thông báo"
-                    // customRightComponent={
-                        
-                    //     <View className="flex-row items-center space-x-4">
-                    //         <Pressable onPress={handleReadAll} className="p-2 active:opacity-50">
-                    //             <MaterialIcons name="done-all" size={24} color="#4F46E5" />
-                    //         </Pressable>
-                    //         <Pressable onPress={handleDeleteAll} className="p-2 active:opacity-50">
-                    //             <MaterialIcons name="delete-sweep" size={24} color="#F43F5E" />
-                    //         </Pressable>
-                    //     </View>
-                    // }
+                    iconName="bell"
+                    iconColor="#4F46E5"
+                    customRightComponent={
+                        <View className="flex-row items-center space-x-4 h-8">
+                            <Pressable onPress={handleReadAll} className="px-2 active:opacity-50">
+                                <FontAwesome name="list-check" size={22} color="#4F46E5" />
+                            </Pressable>
+                            <Pressable onPress={handleDeleteAll} className="px-2 active:opacity-50">
+                                <FontAwesome name="trash" size={22} color="#F43F5E" />
+                            </Pressable>
+                        </View>
+                    }
                 />
                 {/* LIST */}
                 <FlatList
